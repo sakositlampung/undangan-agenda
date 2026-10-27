@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Undangan Digital Multi-Agenda - Sako SIT</title>
+
+  <!-- META GENERAL & OPEN GRAPH -->
+  <meta name="title" content="Undangan Digital Multi-Agenda - Sako SIT">
+  <meta name="description" content="Sistem Undangan Digital & Manajemen Multi-Agenda Resmi Sako Pramuka SIT.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Undangan Digital Multi-Agenda - Sako SIT">
+  <meta property="og:description" content="Klik untuk melihat detail rangkaian agenda acara dan konfirmasi kehadiran Anda.">
+  <meta property="og:image" content="https://sakositlampung.github.io/undangan-kembaranas/logo.png">
+
+  <!-- FAVICON KONFIGURASI -->
+  <link id="appFavicon" rel="icon" type="image/png" sizes="32x32" href="logo.png">
+
+  <!-- BOOTSTRAP 5 & FONT AWESOME -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- LIBRARY EXTERNAL -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #5c1813;
+      --secondary-color: #8c2820;
+      --accent-color: #d4a359;
+      --bg-dark: #231b17;
+      --sidebar-width: 280px;
+    }
+
+    body {
+      background-color: #f4f1ea;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    /* SIDEBAR NAVIGASI */
+    .custom-sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--sidebar-width);
+      height: 100vh;
+      background: #2b211b;
+      color: #fff;
+      border-right: 2px solid var(--accent-color);
+      z-index: 1060;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      box-shadow: 4px 0 25px rgba(0,0,0,0.5);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .custom-sidebar.active {
+      transform: translateX(0) !important;
+    }
+
+    .custom-sidebar-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1055;
+      display: none;
+      backdrop-filter: blur(2px);
+    }
+
+    .custom-sidebar-overlay.active {
+      display: block !important;
+    }
+
+    .hamburger-float-btn {
+      position: fixed;
+      top: 15px;
+      left: 15px;
+      z-index: 1050;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      color: #fff;
+      border: 2px solid var(--accent-color);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-header {
+      padding: 20px 15px;
+      background: linear-gradient(135deg, var(--primary-color), #2b211b);
+      border-bottom: 1px solid rgba(212, 163, 89, 0.2);
+    }
+
+    .sidebar-logo {
+      width: 45px;
+      height: auto;
+      margin-right: 12px;
+    }
+
+    .sidebar-nav-item {
+      color: #dcd6cd;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      border-radius: 10px;
+      margin: 4px 10px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .sidebar-nav-item:hover, .sidebar-nav-item.active {
+      background: rgba(212, 163, 89, 0.15);
+      color: #f3e5ab;
+      transform: translateX(3px);
+    }
+
+    .sidebar-nav-item i {
+      width: 28px;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-section-title {
+      font-size: 0.75rem;
+      text-uppercase: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-color);
+      padding: 15px 20px 5px;
+      font-weight: 700;
+    }
+
+    /* COVER UNDANGAN */
+    #coverView {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #2b211b, #421814);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .cover-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 163, 89, 0.3);
+      border-radius: 20px;
+      padding: 40px 25px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .cover-logo {
+      width: 130px;
+      height: auto;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+    }
+
+    .btn-buka {
+      background: linear-gradient(45deg, #d4a359, #f3e5ab);
+      color: #3d120e;
+      font-weight: 700;
+      padding: 12px 32px;
+      border-radius: 50px;
+      border: none;
+      box-shadow: 0 5px 15px rgba(212, 163, 89, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    /* TAMPILAN GUEST CARD & MULTI AGENDA */
+    .guest-container {
+      max-width: 650px;
+      margin: 20px auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      overflow: hidden;
+    }
+
+    .card-wrapper {
+      position: relative;
+      width: 100%;
+      background: #fbf9f4;
+    }
+
+    .undangan-img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .nama-overlay {
+      position: absolute;
+      top: 41%;
+      left: 73.5%;
+      transform: translate(-50%, -50%);
+      width: 44%;
+      text-align: center;
+      line-height: 1.25;
+      word-wrap: break-word;
+    }
+
+    .nama-text {
+      font-weight: 700;
+      font-size: clamp(0.85rem, 2.5vw, 1.15rem);
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .jabatan-text {
+      font-weight: 600;
+      font-size: clamp(0.65rem, 2vw, 0.85rem);
+      color: #555555;
+    }
+
+    /* AGENDA ITEM STYLING */
+    .agenda-card-item {
+      background: #fdfbf7;
+      border: 1px solid #ebd9b4;
+      border-left: 4px solid var(--primary-color);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .agenda-card-item:hover {
+      box-shadow: 0 4px 12px rgba(92, 24, 19, 0.08);
+    }
+
+    .rsvp-section {
+      padding: 25px 15px;
+      background: #ffffff;
+      text-align: center;
+      border-top: 3px solid var(--accent-color);
+    }
+
+    .btn-rsvp {
+      min-width: 110px;
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 8px 16px;
+      font-size: 0.85rem;
+    }
+
+    .btn-download-pdf {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      font-weight: 600;
+      border-radius: 30px;
+      padding: 10px 22px;
+      border: none;
+      box-shadow: 0 4px 12px rgba(92, 24, 19, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    /* DASHBOARD ADMIN */
+    .admin-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: 20px 0 20px 75px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .admin-logo {
+      width: 45px;
+      height: auto;
+      margin-right: 12px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+
+    .stat-card {
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      height: 100%;
+      transition: all 0.3s ease;
+    }
+
+    .stat-icon {
+      font-size: 1.8rem;
+      opacity: 0.85;
+    }
+
+    .table-responsive {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 18px;
+    }
+
+    .expandable-search-box {
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
+
+    .search-input-collapsible {
+      width: 0;
+      opacity: 0;
+      padding: 0;
+      border: none;
+      transition: all 0.3s ease-in-out;
+      pointer-events: none;
+    }
+
+    .expandable-search-box.expanded .search-input-collapsible {
+      width: 180px;
+      opacity: 1;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid #ced4da;
+      pointer-events: auto;
+    }
+
+    /* STANDALONE MODAL STYLING */
+    .modal.custom-show {
+      display: block !important;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(3px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- INPUT FILE TERSEMBUNYI UNTUK IMPOR EXCEL -->
+  <input type="file" id="importExcelInput" accept=".xlsx, .xls" onchange="importExcel(event)" style="display: none;">
+
+  <!-- OVERLAY SIDEBAR -->
+  <div class="custom-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
+
+  <!-- SIDEBAR NAVIGASI -->
+  <div class="custom-sidebar" id="leftSidebarNav">
+    <div class="sidebar-header d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <img src="logo.png" alt="Logo Sako SIT" class="sidebar-logo" onerror="handleLogoError(this)">
+        <div>
+          <h6 class="fw-bold mb-0 text-warning">Multi-Agenda Manager</h6>
+          <small class="text-white-50" style="font-size: 0.75rem;">Sako Pramuka SIT</small>
+        </div>
+      </div>
+      <button type="button" class="btn-close btn-close-white" onclick="toggleSidebar(false)"></button>
+    </div>
+
+    <div class="p-0 flex-grow-1">
+      <div class="sidebar-section-title">Navigasi Utama</div>
+      <a class="sidebar-nav-item active" id="menuItemAdmin" onclick="switchViewFromSidebar('admin')">
+        <i class="fa-solid fa-gauge-high"></i> Dashboard Admin
+      </a>
+      <a class="sidebar-nav-item" id="menuItemGuest" onclick="switchViewFromSidebar('guest')">
+        <i class="fa-solid fa-envelope"></i> Pratinjau Undangan
+      </a>
+
+      <div class="sidebar-section-title">Kontrol Data RSVP</div>
+      <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('all')">
+        <i class="fa-solid fa-users text-primary"></i> Semua Tamu <span class="badge bg-secondary ms-auto" id="sbBadgeAll">0</span>
+      </a>
+      <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('Hadir')">
+        <i class="fa-solid fa-circle-check text-success"></i> Konfirmasi Hadir <span class="badge bg-success ms-auto" id="sbBadgeHadir">0</span>
+      </a>
+      <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('Tidak Hadir')">
+        <i class="fa-solid fa-circle-xmark text-danger"></i> Halangan <span class="badge bg-danger ms-auto" id="sbBadgeTidakHadir">0</span>
+      </a>
+      <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('Belum Respon')">
+        <i class="fa-solid fa-clock text-warning"></i> Belum Konfirmasi <span class="badge bg-warning text-dark ms-auto" id="sbBadgeBelum">0</span>
+      </a>
+
+      <div class="sidebar-section-title">Aksi Data & Ekspor</div>
+      <a class="sidebar-nav-item" onclick="triggerImportExcel(); toggleSidebar(false);">
+        <i class="fa-solid fa-file-import text-warning"></i> Impor Excel (.xlsx)
+      </a>
+      <a class="sidebar-nav-item" onclick="exportExcel(); toggleSidebar(false);">
+        <i class="fa-solid fa-file-excel text-success"></i> Ekspor Excel (.xlsx)
+      </a>
+      <a class="sidebar-nav-item" onclick="exportCSV(); toggleSidebar(false);">
+        <i class="fa-solid fa-file-csv text-info"></i> Ekspor CSV
+      </a>
+      <a class="sidebar-nav-item" onclick="copyWALaporan(); toggleSidebar(false);">
+        <i class="fa-solid fa-copy text-light"></i> Salin Laporan WA
+      </a>
+    </div>
+
+    <div class="p-3 border-top border-secondary text-center text-white-50 small">
+      Undangan Digital Sako SIT &copy; 2026
+    </div>
+  </div>
+
+  <!-- 1. COVER UNDANGAN -->
+  <div id="coverView">
+    <div class="cover-card">
+      <img src="logo.png" id="logoCover" alt="Logo Kembaranas III" class="cover-logo" onerror="handleLogoError(this)">
+      <h6 class="text-uppercase tracking-wider text-warning mb-2" style="letter-spacing: 2px;">Undangan Resmi</h6>
+      <h4 class="fw-bold mb-3">KEGIATAN & RANGKAIAN AGENDA</h4>
+      <p class="text-white-50 mb-4" style="font-size: 0.9rem;">Satuan Komunitas Pramuka Sekolah Islam Terpadu</p>
+      
+      <div class="p-3 mb-4 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px dashed rgba(212,163,89,0.5);">
+        <small class="text-warning d-block mb-1">Kepada Yth. Bapak/Ibu/Kakak:</small>
+        <h5 class="fw-bold mb-1" id="coverNamaTamu">Bapak / Ibu / Kakak</h5>
+        <small class="text-white-50 d-block" id="coverJabatanTamu"></small>
+      </div>
+
+      <button class="btn btn-buka fs-6" onclick="bukaUndangan()">
+        <i class="fa-solid fa-envelope-open me-2"></i> BUKA UNDANGAN
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. TAMPILAN UNDANGAN UTAMA (KARTU + LIST AGENDA) -->
+  <div id="guestView" class="container py-3 d-none">
+    <div class="guest-container">
+      <!-- KARTU VISUAL UNDANGAN -->
+      <div class="card-wrapper" id="invitationCardArea">
+        <img src="Undangan.png" alt="Undangan Kembaranas III" class="undangan-img" id="undanganMainImg" crossorigin="anonymous" onerror="this.src='https://lh3.googleusercontent.com/d/1Zl9CQud2PZgA1z6sSEG6x6CoEUwM03R1'">
+        
+        <div class="nama-overlay">
+          <div class="nama-text" id="displayNamaTamu">Kak Feri Susanto, S.Kom</div>
+          <div class="jabatan-text" id="displayJabatanTamu">Panitia Kembaranas III</div>
+        </div>
+      </div>
+
+      <!-- DAFTAR RANGKAIAN AGENDA -->
+      <div class="p-4 bg-white border-top border-bottom border-warning">
+        <h5 class="fw-bold text-center text-danger mb-3">
+          <i class="fa-solid fa-calendar-days me-2"></i>Rangkaian Agenda Acara
+        </h5>
+        <div id="guestAgendaList">
+          <!-- Agenda dimuat secara dinamis via JS -->
+        </div>
+      </div>
+
+      <!-- RSVP KEHADIRAN & DOWNLOAD PDF -->
+      <div class="rsvp-section">
+        <h5 class="mb-3 text-secondary"><i class="fa-solid fa-clipboard-check me-2"></i>Konfirmasi Kehadiran Tamu</h5>
+        <div id="rsvpButtons" class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+          <button class="btn btn-success btn-rsvp" onclick="submitRSVP('Hadir')">
+            <i class="fa-solid fa-circle-check me-1"></i> Saya Hadir
+          </button>
+          <button class="btn btn-outline-danger btn-rsvp" onclick="submitRSVP('Tidak Hadir')">
+            <i class="fa-solid fa-circle-xmark me-1"></i> Halangan
+          </button>
+          <button class="btn btn-download-pdf ms-md-2" id="pdfBtn" onclick="downloadPDF()">
+            <i class="fa-solid fa-file-pdf me-2"></i> Unduh Undangan PDF
+          </button>
+        </div>
+        <div id="rsvpAlert" class="alert alert-info mt-3 d-none" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DASHBOARD ADMIN MULTI-AGENDA -->
+  <div id="adminView" class="d-none">
+    <button id="sidebarToggleBtn" class="hamburger-float-btn" type="button" onclick="toggleSidebar()" title="Buka Menu Navigasi">
+      <div class="hamburger-icon-wrapper">
+        <i id="hamburgerIcon" class="fa-solid fa-bars"></i>
+      </div>
+    </button>
+
+    <header class="admin-header mb-4">
+      <div class="container-fluid pe-3">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <div class="d-flex align-items-center">
+            <img src="logo.png" id="logoAdmin" alt="Logo Sako SIT" class="admin-logo" onerror="handleLogoError(this)">
+            <div>
+              <h4 class="fw-bold mb-0">Dashboard Undangan Multi-Agenda</h4>
+              <p class="mb-0 text-white-50 small">Sako Pramuka Sekolah Islam Terpadu (Sako SIT)</p>
+            </div>
+          </div>
+          <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-light btn-sm" onclick="copyWALaporan()"><i class="fa-solid fa-copy me-1"></i> Salin Laporan WA</button>
+            <button class="btn btn-outline-light btn-sm" onclick="exportCSV()"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</button>
+            <button class="btn btn-info btn-sm text-dark fw-bold" onclick="triggerImportExcel()"><i class="fa-solid fa-file-import me-1"></i> Import Excel</button>
+            <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="exportExcel()"><i class="fa-solid fa-file-excel me-1"></i> Export Excel</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container-fluid px-3 mb-5">
+      <!-- STATISTIK RINGKASAN -->
+      <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+          <div class="card stat-card bg-white p-3 border-start border-primary border-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted fw-bold">TOTAL UNDANGAN</small>
+                <h3 class="fw-bold mb-0 text-primary" id="statTotal">0</h3>
+              </div>
+              <i class="fa-solid fa-users text-primary stat-icon"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card bg-white p-3 border-start border-success border-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted fw-bold">SUDAH TERKIRIM</small>
+                <h3 class="fw-bold mb-0 text-success" id="statTerkirim">0</h3>
+              </div>
+              <i class="fa-solid fa-paper-plane text-success stat-icon"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card bg-white p-3 border-start border-warning border-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted fw-bold">BELUM TERKIRIM</small>
+                <h3 class="fw-bold mb-0 text-warning" id="statBelumKirim">0</h3>
+              </div>
+              <i class="fa-solid fa-hourglass-half text-warning stat-icon"></i>
+            </div>
+          </div>
+        </div>
+        <div class="col-6 col-md-3">
+          <div class="card stat-card bg-white p-3 border-start border-info border-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <small class="text-muted fw-bold">KONFIRMASI HADIR</small>
+                <h3 class="fw-bold mb-0 text-info" id="statHadir">0</h3>
+              </div>
+              <i class="fa-solid fa-user-check text-info stat-icon"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL KELOLA AGENDA ACARA -->
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-warning text-dark fw-bold py-3 d-flex justify-content-between align-items-center">
+          <div><i class="fa-solid fa-calendar-plus me-2"></i>Manajemen Agenda Acara</div>
+          <button class="btn btn-sm btn-dark" onclick="showModalDirect('addAgendaModal')"><i class="fa-solid fa-plus me-1"></i> Tambah Agenda Baru</button>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>No</th>
+                  <th>Nama Agenda</th>
+                  <th>Tanggal & Waktu</th>
+                  <th>Lokasi / Tempat</th>
+                  <th>Deskripsi Singkat</th>
+                  <th class="text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="agendaAdminTableBody">
+                <!-- Dimuat via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM TAMBAH TAMU -->
+      <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+          <div><i class="fa-solid fa-user-plus me-2 text-danger"></i>Tambah Penerima Undangan Baru</div>
+          <button class="btn btn-sm btn-outline-success" onclick="triggerImportExcel()"><i class="fa-solid fa-file-import me-1"></i> Impor dari Excel</button>
+        </div>
+        <div class="card-body">
+          <form id="addGuestForm" class="row g-3" onsubmit="addGuest(event)">
+            <div class="col-md-4">
+              <input type="text" class="form-control" id="inputNama" placeholder="Nama Lengkap Penerima" required>
+            </div>
+            <div class="col-md-4">
+              <input type="text" class="form-control" id="inputJabatan" placeholder="Jabatan / Utusan">
+            </div>
+            <div class="col-md-3">
+              <input type="text" class="form-control" id="inputWA" placeholder="No WhatsApp (62812...)">
+            </div>
+            <div class="col-md-1">
+              <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TABEL DAFTAR UNDANGAN TAMU -->
+      <div class="table-responsive">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+          <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2"></i>Daftar Undangan Tamu & Status RSVP</h5>
+          
+          <div class="d-flex align-items-center flex-wrap gap-2">
+            <div class="btn-group btn-group-sm filter-btn-group" role="group">
+              <button type="button" class="btn btn-outline-primary active" id="btnFilterAll" onclick="setRsvpFilter('all')">Semua</button>
+              <button type="button" class="btn btn-outline-success" id="btnFilterHadir" onclick="setRsvpFilter('Hadir')">Hadir</button>
+              <button type="button" class="btn btn-outline-danger" id="btnFilterTidakHadir" onclick="setRsvpFilter('Tidak Hadir')">Halangan</button>
+              <button type="button" class="btn btn-outline-warning text-dark" id="btnFilterBelum" onclick="setRsvpFilter('Belum Respon')">Belum Respon</button>
+            </div>
+
+            <div class="d-flex align-items-center gap-1 ms-1">
+              <select id="rowsPerPageSelect" class="form-select form-select-sm" style="width: auto;" onchange="changeRowsPerPage(this.value)">
+                <option value="5">5/hal</option>
+                <option value="10" selected>10/hal</option>
+                <option value="25">25/hal</option>
+                <option value="50">50/hal</option>
+              </select>
+              <nav>
+                <ul class="pagination pagination-sm mb-0" id="paginationControls"></ul>
+              </nav>
+            </div>
+
+            <div class="expandable-search-box ms-1" id="searchBoxContainer">
+              <button class="btn btn-sm btn-outline-secondary rounded-circle" type="button" onclick="toggleExpandSearch()">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+              </button>
+              <input type="text" id="searchBox" class="form-control form-control-sm search-input-collapsible ms-1 rounded-pill" placeholder="Cari nama/jabatan..." onkeyup="filterGuests()">
+            </div>
+          </div>
+        </div>
+
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>No</th>
+              <th>Nama & Jabatan</th>
+              <th>No WhatsApp</th>
+              <th>Status Kirim</th>
+              <th>Kehadiran (RSVP)</th>
+              <th class="text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="guestTableBody">
+            <!-- Dimuat via JS -->
+          </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+          <small class="text-muted fw-semibold" id="paginationInfo">Menampilkan 0 tamu</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL TAMBAH AGENDA -->
+  <div class="modal fade" id="addAgendaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+        <div class="modal-header bg-danger text-white" style="border-top-left-radius: 18px; border-top-right-radius: 18px;">
+          <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-calendar-plus me-2"></i>Tambah Agenda Acara Baru</h5>
+          <button type="button" class="btn-close btn-close-white" onclick="closeModalDirect('addAgendaModal')"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="addAgendaForm" onsubmit="addAgenda(event)">
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Nama / Judul Agenda</label>
+              <input type="text" class="form-control" id="agendaJudul" placeholder="Contoh: Upacara Pembukaan Kembaranas III" required>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Tanggal Agenda</label>
+                <input type="text" class="form-control" id="agendaTanggal" placeholder="Contoh: Selasa, 10 Nov 2026" required>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Waktu / Jam</label>
+                <input type="text" class="form-control" id="agendaWaktu" placeholder="Contoh: 08:00 WIB - Selesai" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Lokasi / Tempat</label>
+              <input type="text" class="form-control" id="agendaLokasi" placeholder="Contoh: Lapangan Utama Kwarda Lampung" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Keterangan / Dresscode (Opsional)</label>
+              <textarea class="form-control" id="agendaKet" rows="2" placeholder="Contoh: Seragam Pramuka Lengkap"></textarea>
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+              <button type="button" class="btn btn-light btn-sm rounded-pill px-3" onclick="closeModalDirect('addAgendaModal')">Batal</button>
+              <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold">Simpan Agenda</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT DATA TAMU -->
+  <div class="modal fade" id="editGuestModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+        <div class="modal-header bg-warning text-dark" style="border-top-left-radius: 18px; border-top-right-radius: 18px;">
+          <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-pen-to-square me-2"></i>Edit Data Penerima Undangan</h5>
+          <button type="button" class="btn-close" onclick="closeModalDirect('editGuestModal')"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="editGuestForm" onsubmit="updateGuest(event)">
+            <input type="hidden" id="editGuestId">
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Nama Lengkap Penerima</label>
+              <input type="text" class="form-control" id="editNama" required placeholder="Contoh: Kak Feri Susanto, S.Kom">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Jabatan / Utusan</label>
+              <input type="text" class="form-control" id="editJabatan" placeholder="Contoh: Panitia Kembaranas III">
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">No WhatsApp</label>
+              <input type="text" class="form-control" id="editWA" placeholder="Contoh: 6281234567890">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Status Pengiriman</label>
+                <select class="form-select form-select-sm" id="editTerkirim">
+                  <option value="false">Belum Terkirim</option>
+                  <option value="true">Sudah Terkirim</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Status RSVP</label>
+                <select class="form-select form-select-sm" id="editRSVP">
+                  <option value="Belum Respon">Belum Respon</option>
+                  <option value="Hadir">Hadir</option>
+                  <option value="Tidak Hadir">Halangan</option>
+                </select>
+              </div>
+            </div>
+            <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+              <button type="button" class="btn btn-light btn-sm rounded-pill px-3" onclick="closeModalDirect('editGuestModal')">Batal</button>
+              <button type="submit" class="btn btn-warning btn-sm rounded-pill px-4 fw-bold">Simpan Perubahan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- POP-UP NOTIFIKASI -->
+  <div class="modal fade" id="popNotificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content border-0 shadow-lg text-center p-3" style="border-radius: 20px;">
+        <div class="modal-body">
+          <div class="mb-3">
+            <i class="fa-solid fa-circle-check text-success display-3"></i>
+          </div>
+          <h5 class="fw-bold text-dark mb-2" id="popTitle">Berhasil!</h5>
+          <p class="text-muted small mb-3" id="popMessage">Proses berhasil dilakukan.</p>
+          <button type="button" class="btn btn-success btn-sm rounded-pill px-4 fw-bold" onclick="closeModalDirect('popNotificationModal')">Siap, Mantap!</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fallbackLogoUrl = 'https://lh3.googleusercontent.com/d/1nJu5ER7lWJtRUCFPBUD1KDBGdfdCnpFh=s256';
+
+    function setupFavicon() {
+      const favEl = document.getElementById('appFavicon');
+      const img = new Image();
+      img.src = 'logo.png';
+      img.onload = function() { favEl.href = 'logo.png'; };
+      img.onerror = function() { favEl.href = fallbackLogoUrl; };
+    }
+
+    function handleLogoError(img) {
+      img.src = fallbackLogoUrl;
+    }
+
+    /* DATA DEFAULT AGENDA */
+    const defaultAgendas = [
+      { id: 101, judul: "Pembukaan Kembaranas III & PPIM", tanggal: "Selasa, 10 Nov 2026", waktu: "08:00 - 11:30 WIB", lokasi: "Lapangan Upacara Kwarda Lampung", ket: "Seragam Pramuka Lengkap" },
+      { id: 102, judul: "Ramah Tamah & Temu Tokoh", tanggal: "Selasa, 10 Nov 2026", waktu: "13:30 - 16:00 WIB", lokasi: "Gedung Utama Sako SIT Lampung", ket: "Batik / Pakaian Bebas Rapi" },
+      { id: 103, judul: "Malam Pentas Seni & Api Unggun", tanggal: "Rabu, 11 Nov 2026", waktu: "19:30 - 22:00 WIB", lokasi: "Panggung Utama Buper", ket: "Pakaian Lapangan Pramuka" }
+    ];
+
+    /* DATA DEFAULT TAMU */
+    const defaultGuests = [
+      { id: 1, nama: "Kak Feri Susanto, S.Kom", jabatan: "Panitia Kembaranas III", wa: "6281234567890", terkirim: true, rsvp: "Hadir" },
+      { id: 2, nama: "Bapak Ka. Kwarda Lampung", jabatan: "Kwarda Lampung", wa: "6281987654321", terkirim: false, rsvp: "Belum Respon" },
+      { id: 3, nama: "Kakak Ket Sako SIT Nasional", jabatan: "Sako Pramuka SIT", wa: "", terkirim: false, rsvp: "Belum Respon" }
+    ];
+
+    let agendas = JSON.parse(localStorage.getItem("kembaranas_agendas")) || defaultAgendas;
+    let guests = JSON.parse(localStorage.getItem("kembaranas_guests")) || defaultGuests;
+
+    let currentPage = 1;
+    let rowsPerPage = 10;
+    let currentRsvpFilter = 'all';
+
+    function saveAgendas() {
+      localStorage.setItem("kembaranas_agendas", JSON.stringify(agendas));
+      renderAgendas();
+    }
+
+    function saveGuests() {
+      localStorage.setItem("kembaranas_guests", JSON.stringify(guests));
+      renderDashboard();
+    }
+
+    /* MODAL STANDALONE CONTROLLER */
+    function showModalDirect(modalId) {
+      const modalEl = document.getElementById(modalId);
+      if (!modalEl) return;
+
+      if (window.bootstrap && bootstrap.Modal) {
+        try {
+          let modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (!modalInstance) modalInstance = new bootstrap.Modal(modalEl);
+          modalInstance.show();
+          return;
+        } catch (e) {
+          console.warn("Bootstrap Modal fallback active:", e);
+        }
+      }
+
+      modalEl.classList.add('custom-show');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModalDirect(modalId) {
+      const modalEl = document.getElementById(modalId);
+      if (!modalEl) return;
+
+      if (window.bootstrap && bootstrap.Modal) {
+        try {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          if (modalInstance) modalInstance.hide();
+        } catch (e) {
+          console.warn("Bootstrap hide error:", e);
+        }
+      }
+
+      modalEl.classList.remove('custom-show');
+      document.body.style.overflow = '';
+    }
+
+    /* RENDER AGENDA UNTUK UNDANGAN TAMU & TABEL ADMIN */
+    function renderAgendas() {
+      // 1. Tampilan Guest
+      const guestContainer = document.getElementById('guestAgendaList');
+      if (guestContainer) {
+        guestContainer.innerHTML = '';
+        if (agendas.length === 0) {
+          guestContainer.innerHTML = '<p class="text-center text-muted small">Belum ada agenda acara yang ditambahkan.</p>';
+        } else {
+          agendas.forEach((a, idx) => {
+            const div = document.createElement('div');
+            div.className = 'agenda-card-item';
+            div.innerHTML = `
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="fw-bold text-dark mb-0">${idx + 1}. ${escapeHtml(a.judul)}</h6>
+                <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>${escapeHtml(a.waktu)}</span>
+              </div>
+              <div class="small text-secondary mb-1"><i class="fa-solid fa-calendar me-1"></i>${escapeHtml(a.tanggal)}</div>
+              <div class="small text-danger fw-semibold"><i class="fa-solid fa-location-dot me-1"></i>${escapeHtml(a.lokasi)}</div>
+              ${a.ket ? `<div class="mt-2 pt-2 border-top border-light text-muted small"><i class="fa-solid fa-circle-info me-1"></i>${escapeHtml(a.ket)}</div>` : ''}
+            `;
+            guestContainer.appendChild(div);
+          });
+        }
+      }
+
+      // 2. Tabel Admin Agenda
+      const adminBody = document.getElementById('agendaAdminTableBody');
+      if (adminBody) {
+        adminBody.innerHTML = '';
+        if (agendas.length === 0) {
+          adminBody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Belum ada agenda. Silakan tambah agenda baru.</td></tr>';
+        } else {
+          agendas.forEach((a, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${index + 1}</td>
+              <td class="fw-bold text-primary">${escapeHtml(a.judul)}</td>
+              <td>${escapeHtml(a.tanggal)} <br><small class="text-muted">${escapeHtml(a.waktu)}</small></td>
+              <td>${escapeHtml(a.lokasi)}</td>
+              <td>${escapeHtml(a.ket || '-')}</td>
+              <td class="text-center">
+                <button onclick="deleteAgenda('${a.id}')" class="btn btn-sm btn-outline-danger" title="Hapus Agenda">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            `;
+            adminBody.appendChild(tr);
+          });
+        }
+      }
+    }
+
+    function addAgenda(e) {
+      e.preventDefault();
+      const judul = document.getElementById('agendaJudul').value.trim();
+      const tanggal = document.getElementById('agendaTanggal').value.trim();
+      const waktu = document.getElementById('agendaWaktu').value.trim();
+      const lokasi = document.getElementById('agendaLokasi').value.trim();
+      const ket = document.getElementById('agendaKet').value.trim();
+
+      if (judul && tanggal && waktu && lokasi) {
+        agendas.push({
+          id: Date.now(),
+          judul, tanggal, waktu, lokasi, ket
+        });
+        saveAgendas();
+        document.getElementById('addAgendaForm').reset();
+        closeModalDirect('addAgendaModal');
+        showPopNotification("Agenda Ditambahkan! 📅", "Rangkaian agenda acara baru berhasil disimpan.");
+      }
+    }
+
+    function deleteAgenda(id) {
+      if (confirm("Apakah Anda yakin ingin menghapus agenda acara ini?")) {
+        agendas = agendas.filter(a => a.id != id);
+        saveAgendas();
+      }
+    }
+
+    /* KONTROL IMPOR DARI TEMPLATE EXCEL */
+    function triggerImportExcel() {
+      document.getElementById('importExcelInput').click();
+    }
+
+    function importExcel(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const json = XLSX.utils.sheet_to_json(worksheet);
+
+          if (!json || json.length === 0) {
+            alert("Berkas Excel kosong atau format tidak sesuai.");
+            return;
+          }
+
+          let importedCount = 0;
+          json.forEach(row => {
+            const nama = row["Nama Penerima"] || row["Nama"] || row["nama"] || row["NAMA"];
+            if (nama) {
+              const jabatan = row["Jabatan / Utusan"] || row["Jabatan"] || row["jabatan"] || row["JABATAN"] || "";
+              let wa = String(row["No WhatsApp"] || row["No WA"] || row["WhatsApp"] || row["WA"] || row["wa"] || "").replace(/[^0-9]/g, '');
+              if (wa.startsWith('0')) wa = '62' + wa.slice(1);
+
+              const statusKirim = String(row["Status Kirim"] || "").toLowerCase();
+              const terkirim = statusKirim.includes("sudah") || statusKirim.includes("terkirim") || row["terkirim"] === true;
+
+              const rsvpVal = row["Konfirmasi Kehadiran (RSVP)"] || row["RSVP"] || row["rsvp"] || "Belum Respon";
+
+              guests.push({
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                nama: String(nama).trim(),
+                jabatan: String(jabatan).trim(),
+                wa: wa,
+                terkirim: Boolean(terkirim),
+                rsvp: rsvpVal
+              });
+              importedCount++;
+            }
+          });
+
+          if (importedCount > 0) {
+            saveGuests();
+            showPopNotification("Impor Data Berhasil! 🎉", `Berhasil memasukkan ${importedCount} data tamu baru dari berkas Excel.`);
+          } else {
+            alert("Tidak ditemukan data nama tamu yang valid dalam berkas Excel.");
+          }
+        } catch (err) {
+          console.error("Import Excel Error:", err);
+          alert("Gagal membaca berkas Excel. Pastikan file dalam format .xlsx atau .xls yang valid.");
+        } finally {
+          e.target.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    /* EDIT DATA TAMU */
+    function editGuest(id) {
+      const g = guests.find(x => x.id == id);
+      if (g) {
+        document.getElementById('editGuestId').value = g.id;
+        document.getElementById('editNama').value = g.nama || '';
+        document.getElementById('editJabatan').value = g.jabatan || '';
+        document.getElementById('editWA').value = g.wa || '';
+        document.getElementById('editTerkirim').value = g.terkirim ? 'true' : 'false';
+        document.getElementById('editRSVP').value = g.rsvp || 'Belum Respon';
+
+        showModalDirect('editGuestModal');
+      } else {
+        alert("Data tamu tidak ditemukan.");
+      }
+    }
+
+    function updateGuest(e) {
+      e.preventDefault();
+      const id = document.getElementById('editGuestId').value;
+      const g = guests.find(x => x.id == id);
+
+      if (g) {
+        g.nama = document.getElementById('editNama').value.trim();
+        g.jabatan = document.getElementById('editJabatan').value.trim();
+        
+        let wa = document.getElementById('editWA').value.trim().replace(/[^0-9]/g, '');
+        if (wa.startsWith('0')) wa = '62' + wa.slice(1);
+        g.wa = wa;
+
+        g.terkirim = document.getElementById('editTerkirim').value === 'true';
+        g.rsvp = document.getElementById('editRSVP').value;
+
+        saveGuests();
+        closeModalDirect('editGuestModal');
+        showPopNotification("Data Diperbarui! ✏️", "Perubahan data tamu berhasil disimpan.");
+      }
+    }
+
+    function toggleExpandSearch(forceState) {
+      const container = document.getElementById('searchBoxContainer');
+      const input = document.getElementById('searchBox');
+      const icon = document.getElementById('searchIcon');
+
+      let isExpanded = container.classList.contains('expanded');
+      let shouldExpand = (typeof forceState === 'boolean') ? forceState : !isExpanded;
+
+      if (shouldExpand) {
+        container.classList.add('expanded');
+        icon.className = 'fa-solid fa-xmark text-danger';
+        setTimeout(() => input.focus(), 150);
+      } else {
+        container.classList.remove('expanded');
+        icon.className = 'fa-solid fa-magnifying-glass';
+        if (input.value) {
+          input.value = '';
+          filterGuests();
+        }
+      }
+    }
+
+    function toggleSidebar(forceState) {
+      const sidebarEl = document.getElementById('leftSidebarNav');
+      const overlayEl = document.getElementById('sidebarOverlay');
+      const iconEl = document.getElementById('hamburgerIcon');
+
+      let shouldOpen = (typeof forceState === 'boolean') ? forceState : !sidebarEl.classList.contains('active');
+
+      if (shouldOpen) {
+        sidebarEl.classList.add('active');
+        overlayEl.classList.add('active');
+        if (iconEl) iconEl.className = 'fa-solid fa-xmark';
+      } else {
+        sidebarEl.classList.remove('active');
+        overlayEl.classList.remove('active');
+        if (iconEl) iconEl.className = 'fa-solid fa-bars';
+      }
+    }
+
+    function initView() {
+      setupFavicon();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const guestName = urlParams.get('to');
+      const guestJabatan = urlParams.get('j') || urlParams.get('jabatan') || "";
+      const mode = urlParams.get('mode');
+
+      renderAgendas();
+
+      if (guestName) {
+        document.getElementById('coverNamaTamu').innerText = guestName;
+        document.getElementById('coverJabatanTamu').innerText = guestJabatan;
+        document.getElementById('displayNamaTamu').innerText = guestName;
+        document.getElementById('displayJabatanTamu').innerText = guestJabatan;
+        
+        document.getElementById('coverView').classList.remove('d-none');
+        document.getElementById('guestView').classList.add('d-none');
+        document.getElementById('adminView').classList.add('d-none');
+      } else if (mode === 'admin' || !guestName) {
+        showAdminView();
+      }
+    }
+
+    function bukaUndangan() {
+      document.getElementById('coverView').classList.add('d-none');
+      document.getElementById('guestView').classList.remove('d-none');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function switchViewFromSidebar(targetView) {
+      if (targetView === 'admin') {
+        showAdminView();
+      } else {
+        showGuestView();
+      }
+      toggleSidebar(false);
+    }
+
+    function showAdminView() {
+      document.getElementById('coverView').classList.add('d-none');
+      document.getElementById('guestView').classList.add('d-none');
+      document.getElementById('adminView').classList.remove('d-none');
+      
+      document.getElementById('menuItemAdmin').classList.add('active');
+      document.getElementById('menuItemGuest').classList.remove('active');
+
+      renderDashboard();
+    }
+
+    function showGuestView() {
+      document.getElementById('coverView').classList.add('d-none');
+      document.getElementById('adminView').classList.add('d-none');
+      document.getElementById('guestView').classList.remove('d-none');
+
+      document.getElementById('menuItemGuest').classList.add('active');
+      document.getElementById('menuItemAdmin').classList.remove('active');
+    }
+
+    function setRsvpFilter(status) {
+      currentRsvpFilter = status;
+      currentPage = 1;
+
+      document.getElementById('btnFilterAll').classList.toggle('active', status === 'all');
+      document.getElementById('btnFilterHadir').classList.toggle('active', status === 'Hadir');
+      document.getElementById('btnFilterTidakHadir').classList.toggle('active', status === 'Tidak Hadir');
+      document.getElementById('btnFilterBelum').classList.toggle('active', status === 'Belum Respon');
+
+      renderDashboard();
+    }
+
+    function applyRsvpFilterFromSidebar(status) {
+      showAdminView();
+      setRsvpFilter(status);
+      toggleSidebar(false);
+    }
+
+    function renderDashboard() {
+      renderAgendas();
+
+      let total = guests.length;
+      let terkirimCount = guests.filter(g => g.terkirim).length;
+      let belumKirimCount = total - terkirimCount;
+      let hadirCount = guests.filter(g => g.rsvp === 'Hadir').length;
+      let tdkHadirCount = guests.filter(g => g.rsvp === 'Tidak Hadir').length;
+      let belumResponCount = guests.filter(g => g.rsvp === 'Belum Respon' || !g.rsvp).length;
+
+      document.getElementById('statTotal').innerText = total;
+      document.getElementById('statTerkirim').innerText = `${terkirimCount} (${total ? Math.round((terkirimCount/total)*100) : 0}%)`;
+      document.getElementById('statBelumKirim').innerText = belumKirimCount;
+      document.getElementById('statHadir').innerText = hadirCount;
+
+      document.getElementById('sbBadgeAll').innerText = total;
+      document.getElementById('sbBadgeHadir').innerText = hadirCount;
+      document.getElementById('sbBadgeTidakHadir').innerText = tdkHadirCount;
+      document.getElementById('sbBadgeBelum').innerText = belumResponCount;
+
+      const searchBox = document.getElementById('searchBox');
+      const q = searchBox ? searchBox.value.toLowerCase().trim() : '';
+
+      const filtered = guests.filter(g => {
+        const text = `${g.nama} ${g.jabatan || ''} ${g.wa || ''}`.toLowerCase();
+        const matchSearch = text.includes(q);
+
+        let matchRsvp = true;
+        if (currentRsvpFilter === 'Hadir') {
+          matchRsvp = g.rsvp === 'Hadir';
+        } else if (currentRsvpFilter === 'Tidak Hadir') {
+          matchRsvp = g.rsvp === 'Tidak Hadir';
+        } else if (currentRsvpFilter === 'Belum Respon') {
+          matchRsvp = g.rsvp === 'Belum Respon' || !g.rsvp;
+        }
+
+        return matchSearch && matchRsvp;
+      });
+
+      const totalFiltered = filtered.length;
+      const totalPages = Math.ceil(totalFiltered / rowsPerPage) || 1;
+      
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * rowsPerPage;
+      const endIndex = Math.min(startIndex + rowsPerPage, totalFiltered);
+      const pageGuests = filtered.slice(startIndex, endIndex);
+
+      const tbody = document.getElementById('guestTableBody');
+      tbody.innerHTML = '';
+
+      if (pageGuests.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-inbox display-6 d-block mb-2"></i>Tidak ada data tamu yang sesuai filter.</td></tr>`;
+      } else {
+        const baseUrl = window.location.origin + window.location.pathname;
+
+        pageGuests.forEach((g, index) => {
+          const actualIndex = startIndex + index + 1;
+          const inviteLink = `${baseUrl}?to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
+          
+          let agendaSummaryText = agendas.map(a => `• *${a.judul}* (${a.tanggal} - ${a.waktu})`).join('\n');
+          const waText = `Assalamu'alaikum Wr. Wb. Kak/Bpk/Ibu *${g.nama}*,\n\nKami mengundang Anda untuk hadir pada Rangkaian Agenda Acara SAKO PRAMUKA SIT:\n\n${agendaSummaryText}\n\nDetail Undangan Digital & Konfirmasi Kehadiran Anda dapat diakses melalui tautan berikut:\n${inviteLink}\n\nTerima kasih.`;
+          const waLink = `https://api.whatsapp.com/send?phone=${g.wa}&text=${encodeURIComponent(waText)}`;
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${actualIndex}</td>
+            <td>
+              <strong>${escapeHtml(g.nama)}</strong>
+              ${g.jabatan ? `<br><small class="text-muted">${escapeHtml(g.jabatan)}</small>` : ''}
+            </td>
+            <td>${g.wa || '<span class="text-muted">-</span>'}</td>
+            <td>
+              <span class="badge badge-status ${g.terkirim ? 'bg-success' : 'bg-warning text-dark'}">
+                ${g.terkirim ? '<i class="fa-solid fa-check me-1"></i> Terkirim' : '<i class="fa-solid fa-clock me-1"></i> Belum Kirim'}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-status ${g.rsvp === 'Hadir' ? 'bg-info' : g.rsvp === 'Tidak Hadir' ? 'bg-danger' : 'bg-secondary'}">
+                ${g.rsvp}
+              </span>
+            </td>
+            <td class="text-center">
+              <a href="${inviteLink}" target="_blank" class="btn btn-sm btn-outline-info me-1" title="Pratinjau Undangan">
+                <i class="fa-solid fa-eye"></i>
+              </a>
+              <a href="${waLink}" target="_blank" onclick="markAsSent('${g.id}')" class="btn btn-sm btn-success me-1" title="Kirim WA">
+                <i class="fa-brands fa-whatsapp"></i>
+              </a>
+              <button onclick="copyLink('${inviteLink}')" class="btn btn-sm btn-outline-primary me-1" title="Salin Link">
+                <i class="fa-solid fa-link"></i>
+              </button>
+              <button onclick="editGuest('${g.id}')" class="btn btn-sm btn-outline-warning me-1" title="Edit Data Tamu">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteGuest('${g.id}')" class="btn btn-sm btn-outline-danger" title="Hapus">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      renderPaginationControls(totalFiltered, totalPages, startIndex, endIndex);
+    }
+
+    function renderPaginationControls(totalFiltered, totalPages, startIndex, endIndex) {
+      const infoEl = document.getElementById('paginationInfo');
+      const navEl = document.getElementById('paginationControls');
+
+      if (totalFiltered === 0) {
+        infoEl.innerText = "Menampilkan 0 dari 0 tamu";
+        navEl.innerHTML = '';
+        return;
+      }
+
+      infoEl.innerText = `Menampilkan ${startIndex + 1} - ${endIndex} dari ${totalFiltered} tamu`;
+
+      let navHtml = '';
+      navHtml += `<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;">&laquo;</a>
+      </li>`;
+
+      for (let i = 1; i <= totalPages; i++) {
+        navHtml += `<li class="page-item ${i === currentPage ? 'active' : ''}">
+          <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+        </li>`;
+      }
+
+      navHtml += `<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;">&raquo;</a>
+      </li>`;
+
+      navEl.innerHTML = navHtml;
+    }
+
+    function changePage(page) {
+      currentPage = page;
+      renderDashboard();
+    }
+
+    function changeRowsPerPage(val) {
+      rowsPerPage = parseInt(val) || 10;
+      currentPage = 1;
+      renderDashboard();
+    }
+
+    function filterGuests() {
+      currentPage = 1;
+      renderDashboard();
+    }
+
+    function addGuest(e) {
+      e.preventDefault();
+      const nama = document.getElementById('inputNama').value.trim();
+      const jabatan = document.getElementById('inputJabatan').value.trim();
+      let wa = document.getElementById('inputWA').value.trim().replace(/[^0-9]/g, '');
+
+      if (wa.startsWith('0')) wa = '62' + wa.slice(1);
+
+      if (nama) {
+        guests.push({
+          id: Date.now(),
+          nama: nama,
+          jabatan: jabatan,
+          wa: wa,
+          terkirim: false,
+          rsvp: 'Belum Respon'
+        });
+        saveGuests();
+        document.getElementById('addGuestForm').reset();
+        showPopNotification("Tamu Ditambahkan! 🎉", "Penerima undangan baru berhasil dimasukkan ke daftar laporan.");
+      }
+    }
+
+    function markAsSent(id) {
+      const g = guests.find(x => x.id == id);
+      if (g) {
+        g.terkirim = true;
+        saveGuests();
+      }
+    }
+
+    function deleteGuest(id) {
+      if (confirm("Apakah Anda yakin ingin menghapus nama tamu ini?")) {
+        guests = guests.filter(x => x.id != id);
+        saveGuests();
+      }
+    }
+
+    function copyLink(link) {
+      navigator.clipboard.writeText(link);
+      showPopNotification("Link Berhasil Disalin! ✨", "Tautan undangan kustom siap dikirimkan.");
+    }
+
+    function copyWALaporan() {
+      const total = guests.length;
+      const terkirim = guests.filter(g => g.terkirim).length;
+      const hadir = guests.filter(g => g.rsvp === 'Hadir').length;
+      const tdkHadir = guests.filter(g => g.rsvp === 'Tidak Hadir').length;
+
+      const reportText = `*LAPORAN PROGRES UNDANGAN MULTI-AGENDA*\n` +
+        `*Rangkaian Acara Sako Pramuka SIT*\n` +
+        `----------------------------------------\n` +
+        `📊 *Ringkasan Status:*\n` +
+        `• Total Target Undangan: ${total}\n` +
+        `• Terkirim WA: ${terkirim} (${total ? Math.round((terkirim/total)*100) : 0}%)\n` +
+        `• Belum Terkirim: ${total - terkirim}\n\n` +
+        `📥 *Konfirmasi Kehadiran (RSVP):*\n` +
+        `• Konfirmasi Hadir: ${hadir}\n` +
+        `• Halangan: ${tdkHadir}\n` +
+        `• Belum Menjawab: ${total - (hadir + tdkHadir)}\n\n` +
+        `_Laporan ini diperbarui otomatis dari sistem digital._`;
+
+      navigator.clipboard.writeText(reportText);
+      showPopNotification("Laporan Disalin! 📋", "Teks laporan format WhatsApp telah disalin.");
+    }
+
+    function showPopNotification(title, message) {
+      document.getElementById('popTitle').innerText = title;
+      document.getElementById('popMessage').innerText = message;
+      showModalDirect('popNotificationModal');
+    }
+
+    function submitRSVP(status) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const currentName = urlParams.get('to');
+
+      if (currentName) {
+        const guest = guests.find(g => g.nama.toLowerCase() === currentName.toLowerCase());
+        if (guest) {
+          guest.rsvp = status;
+          saveGuests();
+        }
+      }
+
+      const alertBox = document.getElementById('rsvpAlert');
+      alertBox.classList.remove('d-none');
+      if (status === 'Hadir') {
+        alertBox.className = "alert alert-success mt-3";
+        alertBox.innerHTML = "<i class='fa-solid fa-circle-check me-2'></i>Terima kasih atas konfirmasi Anda. Sampai jumpa di lokasi acara!";
+      } else {
+        alertBox.className = "alert alert-warning mt-3";
+        alertBox.innerHTML = "<i class='fa-solid fa-circle-info me-2'></i>Terima kasih atas konfirmasinya. Mohon doa agar seluruh rangkaian acara berjalan lancar.";
+      }
+    }
+
+    async function downloadPDF() {
+      const pdfBtn = document.getElementById('pdfBtn');
+      const originalHtml = pdfBtn ? pdfBtn.innerHTML : '';
+      if (pdfBtn) {
+        pdfBtn.disabled = true;
+        pdfBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Memproses PDF...';
+      }
+
+      try {
+        const guestContainerEl = document.querySelector('.guest-container');
+        const namaEl = document.getElementById('displayNamaTamu');
+        const nama = (namaEl ? namaEl.innerText : '').trim() || 'Tamu';
+        const cleanName = nama.replace(/[^a-zA-Z0-9]/g, '_');
+        const filename = `Undangan_MultiAgenda_${cleanName}.pdf`;
+
+        const canvas = await html2canvas(guestContainerEl, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const { jsPDF } = window.jspdf;
+
+        const imgWidth = 210;
+        const pageHeight = 297;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        let positionY = (imgHeight < pageHeight) ? (pageHeight - imgHeight) / 2 : 0;
+
+        pdf.addImage(imgData, 'JPEG', 0, positionY, imgWidth, imgHeight);
+        pdf.save(filename);
+
+        showPopNotification("Unduh PDF Berhasil! 📄", `Undangan (${filename}) berhasil dibuat dan diunduh.`);
+      } catch (err) {
+        console.error("PDF generation error:", err);
+        window.print();
+      } finally {
+        if (pdfBtn) {
+          pdfBtn.disabled = false;
+          pdfBtn.innerHTML = originalHtml;
+        }
+      }
+    }
+
+    function exportExcel() {
+      const baseUrl = window.location.origin + window.location.pathname;
+
+      const excelData = guests.map((g, index) => {
+        const inviteLink = `${baseUrl}?to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
+        return {
+          "No": index + 1,
+          "Nama Penerima": g.nama,
+          "Jabatan / Utusan": g.jabatan || "-",
+          "No WhatsApp": g.wa || "-",
+          "Link Undangan Online": inviteLink,
+          "Status Kirim": g.terkirim ? "Sudah Terkirim" : "Belum Terkirim",
+          "Konfirmasi Kehadiran (RSVP)": g.rsvp
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      worksheet['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 65 }, { wch: 15 }, { wch: 20 }];
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Undangan");
+      XLSX.writeFile(workbook, "Laporan_Undangan_MultiAgenda.xlsx");
+
+      showPopNotification("Export Excel Berhasil! 📊", "Berkas Excel (.xlsx) berhasil diunduh.");
+    }
+
+    function exportCSV() {
+      let csv = "Nama,Jabatan,No WA,Status Terkirim,RSVP\n";
+      guests.forEach(g => {
+        csv += `"${g.nama}","${g.jabatan}","${g.wa}","${g.terkirim ? 'Sudah' : 'Belum'}","${g.rsvp}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = 'Laporan_Undangan_MultiAgenda.csv';
+      link.click();
+    }
+
+    function escapeHtml(text) {
+      return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+    }
+
+    window.onload = initView;
+  </script>
+</body>
+</html>

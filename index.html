@@ -11,9 +11,10 @@
   <meta property="og:type" content="website">
   <meta property="og:title" content="Undangan Digital Multi-Agenda">
   <meta property="og:description" content="Klik untuk melihat undangan digital Anda.">
+  <meta property="og:image" content="https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn">
 
   <!-- FAVICON -->
-  <link id="appFavicon" rel="icon" type="image/png" sizes="32x32" href="logo.png">
+  <link id="appFavicon" rel="icon" type="image/png" sizes="32x32" href="https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn">
 
   <!-- BOOTSTRAP 5 & FONT AWESOME -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -358,7 +359,7 @@
   <!-- OVERLAY SIDEBAR -->
   <div class="custom-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
 
-  <!-- SIDEBAR NAVIGASI (HANYA AKTIF JIKA DALAM AGENDA DASHBOARD) -->
+  <!-- SIDEBAR NAVIGASI -->
   <div class="custom-sidebar" id="leftSidebarNav">
     <div class="sidebar-header d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center">
@@ -419,12 +420,12 @@
 
 
   <!-- ================================================================= -->
-  <!-- VIEW 1: DOKS / HALAMAN UTAMA MANAJEMEN DAFTAR AGENDA (SELEKTOR) -->
+  <!-- VIEW 1: SELEKTOR AGENDA UTAMA -->
   <!-- ================================================================= -->
   <div id="agendaSelectorView" class="container py-5">
     <div class="row justify-content-center mb-4 text-center">
       <div class="col-md-8">
-        <img src="logo.png" alt="Logo Sako SIT" style="height: 70px;" class="mb-3" onerror="handleLogoError(this)">
+        <img src="logo.png" alt="Logo Sako SIT" style="height: 75px;" class="mb-3" onerror="handleLogoError(this)">
         <h2 class="fw-bold text-dark mb-2">Manajemen Undangan Multi-Agenda</h2>
         <p class="text-muted">Pilih salah satu agenda acara di bawah ini untuk mengelola data penerima undangan, membuat link WhatsApp kustom, dan melihat laporan RSVP secara spesifik.</p>
         
@@ -442,7 +443,7 @@
 
 
   <!-- ================================================================= -->
-  <!-- VIEW 2: DASHBOARD AGENDA TERPILIH (PENGEDITAN & MANAJEMEN TAMU) -->
+  <!-- VIEW 2: DASHBOARD AGENDA TERPILIH -->
   <!-- ================================================================= -->
   <div id="adminView" class="d-none">
     <button id="sidebarToggleBtn" class="hamburger-float-btn" type="button" onclick="toggleSidebar()" title="Buka Menu Navigasi">
@@ -522,7 +523,7 @@
         </div>
       </div>
 
-      <!-- FORM TAMBAH TAMU UTK AGENDA INI -->
+      <!-- FORM TAMBAH TAMU -->
       <div class="card mb-4 border-0 shadow-sm">
         <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
           <div><i class="fa-solid fa-user-plus me-2 text-danger"></i>Tambah Penerima Undangan ke Agenda Ini</div>
@@ -546,7 +547,7 @@
         </div>
       </div>
 
-      <!-- TABEL DAFTAR UNDANGAN AGENDA INI -->
+      <!-- TABEL DAFTAR UNDANGAN -->
       <div class="table-responsive">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
           <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2"></i>Daftar Undangan Tamu Agenda Ini</h5>
@@ -605,7 +606,7 @@
 
 
   <!-- ================================================================= -->
-  <!-- VIEW 3: TAMPILAN GUEST (COVER & UNDANGAN TAMU AKTIF) -->
+  <!-- VIEW 3: TAMPILAN UNDANGAN GUEST -->
   <!-- ================================================================= -->
   <div id="coverView" class="d-none">
     <div class="cover-card">
@@ -657,7 +658,7 @@
 
 
   <!-- ================================================================= -->
-  <!-- MODALS SYSTEM (UNIVERSAL FAIL-SAFE) -->
+  <!-- MODAL SYSTEM -->
   <!-- ================================================================= -->
 
   <!-- MODAL BUAT AGENDA BARU -->
@@ -822,7 +823,8 @@
   <!-- JAVASCRIPT LOGIC SYSTEM MULTI-AGENDA -->
   <!-- ================================================================= -->
   <script>
-    const fallbackLogoUrl = 'https://lh3.googleusercontent.com/d/1nJu5ER7lWJtRUCFPBUD1KDBGdfdCnpFh=s256';
+    // URL Gambar Logo Google Drive Resmi
+    const fallbackLogoUrl = 'https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn';
 
     function setupFavicon() {
       const favEl = document.getElementById('appFavicon');

@@ -3,17 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Undangan Digital Multi-Agenda - Sako SIT</title>
+  <title>Sistem Manajemen Undangan Multi-Agenda Digital</title>
 
   <!-- META GENERAL & OPEN GRAPH -->
-  <meta name="title" content="Undangan Digital Multi-Agenda - Sako SIT">
-  <meta name="description" content="Sistem Undangan Digital & Manajemen Multi-Agenda Resmi Sako Pramuka SIT.">
+  <meta name="title" content="Undangan Digital Multi-Agenda">
+  <meta name="description" content="Sistem Manajemen Undangan Digital & Multi-Agenda Acara Resmi.">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Undangan Digital Multi-Agenda - Sako SIT">
-  <meta property="og:description" content="Klik untuk melihat detail rangkaian agenda acara dan konfirmasi kehadiran Anda.">
-  <meta property="og:image" content="https://sakositlampung.github.io/undangan-kembaranas/logo.png">
+  <meta property="og:title" content="Undangan Digital Multi-Agenda">
+  <meta property="og:description" content="Klik untuk melihat undangan digital Anda.">
 
-  <!-- FAVICON KONFIGURASI -->
+  <!-- FAVICON -->
   <link id="appFavicon" rel="icon" type="image/png" sizes="32x32" href="logo.png">
 
   <!-- BOOTSTRAP 5 & FONT AWESOME -->
@@ -22,7 +21,7 @@
   
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
-  <!-- LIBRARY EXTERNAL -->
+  <!-- EXTERNAL LIBRARIES -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -41,6 +40,40 @@
       font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
       color: #333;
       overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* AGENDA SELECTOR CARD STYLING */
+    .agenda-card {
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid rgba(212, 163, 89, 0.3);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+      transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .agenda-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(92, 24, 19, 0.15);
+      border-color: var(--accent-color);
+    }
+
+    .agenda-card-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: #fff;
+      padding: 18px 20px;
+      position: relative;
+    }
+
+    .agenda-badge-count {
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(5px);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.8rem;
     }
 
     /* SIDEBAR NAVIGASI */
@@ -108,7 +141,7 @@
     }
 
     .sidebar-logo {
-      width: 45px;
+      width: 42px;
       height: auto;
       margin-right: 12px;
     }
@@ -146,7 +179,7 @@
       font-weight: 700;
     }
 
-    /* COVER UNDANGAN */
+    /* COVER & UNDANGAN GUEST */
     #coverView {
       min-height: 100vh;
       display: flex;
@@ -170,7 +203,7 @@
     }
 
     .cover-logo {
-      width: 130px;
+      width: 120px;
       height: auto;
       margin-bottom: 20px;
       filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
@@ -187,7 +220,6 @@
       transition: all 0.3s ease;
     }
 
-    /* TAMPILAN GUEST CARD & MULTI AGENDA */
     .guest-container {
       max-width: 650px;
       margin: 20px auto;
@@ -233,21 +265,6 @@
       color: #555555;
     }
 
-    /* AGENDA ITEM STYLING */
-    .agenda-card-item {
-      background: #fdfbf7;
-      border: 1px solid #ebd9b4;
-      border-left: 4px solid var(--primary-color);
-      border-radius: 10px;
-      padding: 15px;
-      margin-bottom: 12px;
-      transition: all 0.2s ease;
-    }
-
-    .agenda-card-item:hover {
-      box-shadow: 0 4px 12px rgba(92, 24, 19, 0.08);
-    }
-
     .rsvp-section {
       padding: 25px 15px;
       background: #ffffff;
@@ -274,19 +291,12 @@
       transition: all 0.3s ease;
     }
 
-    /* DASHBOARD ADMIN */
+    /* DASHBOARD ADMIN STYLING */
     .admin-header {
       background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: #fff;
       padding: 20px 0 20px 75px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    .admin-logo {
-      width: 45px;
-      height: auto;
-      margin-right: 12px;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
     .stat-card {
@@ -332,7 +342,7 @@
       pointer-events: auto;
     }
 
-    /* STANDALONE MODAL STYLING */
+    /* STANDALONE MODAL FALLBACK */
     .modal.custom-show {
       display: block !important;
       background: rgba(0,0,0,0.6);
@@ -348,14 +358,14 @@
   <!-- OVERLAY SIDEBAR -->
   <div class="custom-sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar(false)"></div>
 
-  <!-- SIDEBAR NAVIGASI -->
+  <!-- SIDEBAR NAVIGASI (HANYA AKTIF JIKA DALAM AGENDA DASHBOARD) -->
   <div class="custom-sidebar" id="leftSidebarNav">
     <div class="sidebar-header d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center">
         <img src="logo.png" alt="Logo Sako SIT" class="sidebar-logo" onerror="handleLogoError(this)">
         <div>
-          <h6 class="fw-bold mb-0 text-warning">Multi-Agenda Manager</h6>
-          <small class="text-white-50" style="font-size: 0.75rem;">Sako Pramuka SIT</small>
+          <h6 class="fw-bold mb-0 text-warning" id="sidebarAgendaTitle">Agenda Active</h6>
+          <small class="text-white-50" style="font-size: 0.75rem;">Multi-Agenda Manager</small>
         </div>
       </div>
       <button type="button" class="btn-close btn-close-white" onclick="toggleSidebar(false)"></button>
@@ -363,14 +373,17 @@
 
     <div class="p-0 flex-grow-1">
       <div class="sidebar-section-title">Navigasi Utama</div>
+      <a class="sidebar-nav-item" onclick="returnToAgendaList()">
+        <i class="fa-solid fa-arrow-left text-warning"></i> Switch / Pilih Agenda
+      </a>
       <a class="sidebar-nav-item active" id="menuItemAdmin" onclick="switchViewFromSidebar('admin')">
-        <i class="fa-solid fa-gauge-high"></i> Dashboard Admin
+        <i class="fa-solid fa-gauge-high"></i> Dashboard Tamu
       </a>
       <a class="sidebar-nav-item" id="menuItemGuest" onclick="switchViewFromSidebar('guest')">
         <i class="fa-solid fa-envelope"></i> Pratinjau Undangan
       </a>
 
-      <div class="sidebar-section-title">Kontrol Data RSVP</div>
+      <div class="sidebar-section-title">Filter RSVP Agenda Ini</div>
       <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('all')">
         <i class="fa-solid fa-users text-primary"></i> Semua Tamu <span class="badge bg-secondary ms-auto" id="sbBadgeAll">0</span>
       </a>
@@ -384,7 +397,7 @@
         <i class="fa-solid fa-clock text-warning"></i> Belum Konfirmasi <span class="badge bg-warning text-dark ms-auto" id="sbBadgeBelum">0</span>
       </a>
 
-      <div class="sidebar-section-title">Aksi Data & Ekspor</div>
+      <div class="sidebar-section-title">Aksi Data Agenda Ini</div>
       <a class="sidebar-nav-item" onclick="triggerImportExcel(); toggleSidebar(false);">
         <i class="fa-solid fa-file-import text-warning"></i> Impor Excel (.xlsx)
       </a>
@@ -404,69 +417,33 @@
     </div>
   </div>
 
-  <!-- 1. COVER UNDANGAN -->
-  <div id="coverView">
-    <div class="cover-card">
-      <img src="logo.png" id="logoCover" alt="Logo Kembaranas III" class="cover-logo" onerror="handleLogoError(this)">
-      <h6 class="text-uppercase tracking-wider text-warning mb-2" style="letter-spacing: 2px;">Undangan Resmi</h6>
-      <h4 class="fw-bold mb-3">KEGIATAN & RANGKAIAN AGENDA</h4>
-      <p class="text-white-50 mb-4" style="font-size: 0.9rem;">Satuan Komunitas Pramuka Sekolah Islam Terpadu</p>
-      
-      <div class="p-3 mb-4 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px dashed rgba(212,163,89,0.5);">
-        <small class="text-warning d-block mb-1">Kepada Yth. Bapak/Ibu/Kakak:</small>
-        <h5 class="fw-bold mb-1" id="coverNamaTamu">Bapak / Ibu / Kakak</h5>
-        <small class="text-white-50 d-block" id="coverJabatanTamu"></small>
-      </div>
 
-      <button class="btn btn-buka fs-6" onclick="bukaUndangan()">
-        <i class="fa-solid fa-envelope-open me-2"></i> BUKA UNDANGAN
-      </button>
-    </div>
-  </div>
-
-  <!-- 2. TAMPILAN UNDANGAN UTAMA (KARTU + LIST AGENDA) -->
-  <div id="guestView" class="container py-3 d-none">
-    <div class="guest-container">
-      <!-- KARTU VISUAL UNDANGAN -->
-      <div class="card-wrapper" id="invitationCardArea">
-        <img src="Undangan.png" alt="Undangan Kembaranas III" class="undangan-img" id="undanganMainImg" crossorigin="anonymous" onerror="this.src='https://lh3.googleusercontent.com/d/1Zl9CQud2PZgA1z6sSEG6x6CoEUwM03R1'">
+  <!-- ================================================================= -->
+  <!-- VIEW 1: DOKS / HALAMAN UTAMA MANAJEMEN DAFTAR AGENDA (SELEKTOR) -->
+  <!-- ================================================================= -->
+  <div id="agendaSelectorView" class="container py-5">
+    <div class="row justify-content-center mb-4 text-center">
+      <div class="col-md-8">
+        <img src="logo.png" alt="Logo Sako SIT" style="height: 70px;" class="mb-3" onerror="handleLogoError(this)">
+        <h2 class="fw-bold text-dark mb-2">Manajemen Undangan Multi-Agenda</h2>
+        <p class="text-muted">Pilih salah satu agenda acara di bawah ini untuk mengelola data penerima undangan, membuat link WhatsApp kustom, dan melihat laporan RSVP secara spesifik.</p>
         
-        <div class="nama-overlay">
-          <div class="nama-text" id="displayNamaTamu">Kak Feri Susanto, S.Kom</div>
-          <div class="jabatan-text" id="displayJabatanTamu">Panitia Kembaranas III</div>
-        </div>
+        <button class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm mt-2 fw-bold" onclick="showModalDirect('createAgendaModal')">
+          <i class="fa-solid fa-plus-circle me-2"></i> Tambah Agenda Acara Baru
+        </button>
       </div>
+    </div>
 
-      <!-- DAFTAR RANGKAIAN AGENDA -->
-      <div class="p-4 bg-white border-top border-bottom border-warning">
-        <h5 class="fw-bold text-center text-danger mb-3">
-          <i class="fa-solid fa-calendar-days me-2"></i>Rangkaian Agenda Acara
-        </h5>
-        <div id="guestAgendaList">
-          <!-- Agenda dimuat secara dinamis via JS -->
-        </div>
-      </div>
-
-      <!-- RSVP KEHADIRAN & DOWNLOAD PDF -->
-      <div class="rsvp-section">
-        <h5 class="mb-3 text-secondary"><i class="fa-solid fa-clipboard-check me-2"></i>Konfirmasi Kehadiran Tamu</h5>
-        <div id="rsvpButtons" class="d-flex justify-content-center flex-wrap gap-2 mb-3">
-          <button class="btn btn-success btn-rsvp" onclick="submitRSVP('Hadir')">
-            <i class="fa-solid fa-circle-check me-1"></i> Saya Hadir
-          </button>
-          <button class="btn btn-outline-danger btn-rsvp" onclick="submitRSVP('Tidak Hadir')">
-            <i class="fa-solid fa-circle-xmark me-1"></i> Halangan
-          </button>
-          <button class="btn btn-download-pdf ms-md-2" id="pdfBtn" onclick="downloadPDF()">
-            <i class="fa-solid fa-file-pdf me-2"></i> Unduh Undangan PDF
-          </button>
-        </div>
-        <div id="rsvpAlert" class="alert alert-info mt-3 d-none" role="alert"></div>
-      </div>
+    <!-- GRID DAFTAR AGENDA -->
+    <div class="row g-4" id="agendaGridContainer">
+      <!-- Agenda Cards dimasukkan via JavaScript -->
     </div>
   </div>
 
-  <!-- 3. DASHBOARD ADMIN MULTI-AGENDA -->
+
+  <!-- ================================================================= -->
+  <!-- VIEW 2: DASHBOARD AGENDA TERPILIH (PENGEDITAN & MANAJEMEN TAMU) -->
+  <!-- ================================================================= -->
   <div id="adminView" class="d-none">
     <button id="sidebarToggleBtn" class="hamburger-float-btn" type="button" onclick="toggleSidebar()" title="Buka Menu Navigasi">
       <div class="hamburger-icon-wrapper">
@@ -478,15 +455,17 @@
       <div class="container-fluid pe-3">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div class="d-flex align-items-center">
-            <img src="logo.png" id="logoAdmin" alt="Logo Sako SIT" class="admin-logo" onerror="handleLogoError(this)">
+            <button class="btn btn-outline-light btn-sm me-3 rounded-pill fw-bold" onclick="returnToAgendaList()">
+              <i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Daftar Agenda
+            </button>
             <div>
-              <h4 class="fw-bold mb-0">Dashboard Undangan Multi-Agenda</h4>
-              <p class="mb-0 text-white-50 small">Sako Pramuka Sekolah Islam Terpadu (Sako SIT)</p>
+              <h4 class="fw-bold mb-0" id="currentAgendaDisplayTitle">Dashboard Agenda</h4>
+              <p class="mb-0 text-white-50 small" id="currentAgendaDisplaySub">Sako Pramuka Sekolah Islam Terpadu (Sako SIT)</p>
             </div>
           </div>
           <div class="d-flex gap-2 flex-wrap">
+            <button class="btn btn-outline-warning btn-sm text-warning fw-bold" onclick="openEditAgendaModal()"><i class="fa-solid fa-gear me-1"></i> Pengaturan Agenda</button>
             <button class="btn btn-light btn-sm" onclick="copyWALaporan()"><i class="fa-solid fa-copy me-1"></i> Salin Laporan WA</button>
-            <button class="btn btn-outline-light btn-sm" onclick="exportCSV()"><i class="fa-solid fa-file-csv me-1"></i> Export CSV</button>
             <button class="btn btn-info btn-sm text-dark fw-bold" onclick="triggerImportExcel()"><i class="fa-solid fa-file-import me-1"></i> Import Excel</button>
             <button class="btn btn-warning btn-sm text-dark fw-bold" onclick="exportExcel()"><i class="fa-solid fa-file-excel me-1"></i> Export Excel</button>
           </div>
@@ -495,7 +474,7 @@
     </header>
 
     <div class="container-fluid px-3 mb-5">
-      <!-- STATISTIK RINGKASAN -->
+      <!-- STATISTIK RINGKASAN AGENDA AKTIF -->
       <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
           <div class="card stat-card bg-white p-3 border-start border-primary border-4">
@@ -543,37 +522,10 @@
         </div>
       </div>
 
-      <!-- PANEL KELOLA AGENDA ACARA -->
-      <div class="card mb-4 border-0 shadow-sm">
-        <div class="card-header bg-warning text-dark fw-bold py-3 d-flex justify-content-between align-items-center">
-          <div><i class="fa-solid fa-calendar-plus me-2"></i>Manajemen Agenda Acara</div>
-          <button class="btn btn-sm btn-dark" onclick="showModalDirect('addAgendaModal')"><i class="fa-solid fa-plus me-1"></i> Tambah Agenda Baru</button>
-        </div>
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered table-sm align-middle mb-0">
-              <thead class="table-light">
-                <tr>
-                  <th>No</th>
-                  <th>Nama Agenda</th>
-                  <th>Tanggal & Waktu</th>
-                  <th>Lokasi / Tempat</th>
-                  <th>Deskripsi Singkat</th>
-                  <th class="text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="agendaAdminTableBody">
-                <!-- Dimuat via JS -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- FORM TAMBAH TAMU -->
+      <!-- FORM TAMBAH TAMU UTK AGENDA INI -->
       <div class="card mb-4 border-0 shadow-sm">
         <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
-          <div><i class="fa-solid fa-user-plus me-2 text-danger"></i>Tambah Penerima Undangan Baru</div>
+          <div><i class="fa-solid fa-user-plus me-2 text-danger"></i>Tambah Penerima Undangan ke Agenda Ini</div>
           <button class="btn btn-sm btn-outline-success" onclick="triggerImportExcel()"><i class="fa-solid fa-file-import me-1"></i> Impor dari Excel</button>
         </div>
         <div class="card-body">
@@ -588,16 +540,16 @@
               <input type="text" class="form-control" id="inputWA" placeholder="No WhatsApp (62812...)">
             </div>
             <div class="col-md-1">
-              <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i></button>
+              <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-plus me-1"></i></button>
             </div>
           </form>
         </div>
       </div>
 
-      <!-- TABEL DAFTAR UNDANGAN TAMU -->
+      <!-- TABEL DAFTAR UNDANGAN AGENDA INI -->
       <div class="table-responsive">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-          <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2"></i>Daftar Undangan Tamu & Status RSVP</h5>
+          <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check me-2"></i>Daftar Undangan Tamu Agenda Ini</h5>
           
           <div class="d-flex align-items-center flex-wrap gap-2">
             <div class="btn-group btn-group-sm filter-btn-group" role="group">
@@ -651,41 +603,147 @@
     </div>
   </div>
 
-  <!-- MODAL TAMBAH AGENDA -->
-  <div class="modal fade" id="addAgendaModal" tabindex="-1" aria-hidden="true">
+
+  <!-- ================================================================= -->
+  <!-- VIEW 3: TAMPILAN GUEST (COVER & UNDANGAN TAMU AKTIF) -->
+  <!-- ================================================================= -->
+  <div id="coverView" class="d-none">
+    <div class="cover-card">
+      <img src="logo.png" id="logoCover" alt="Logo Sako SIT" class="cover-logo" onerror="handleLogoError(this)">
+      <h6 class="text-uppercase tracking-wider text-warning mb-2" style="letter-spacing: 2px;">Undangan Resmi</h6>
+      <h4 class="fw-bold mb-3" id="coverAgendaJudul">NAMA AGENDA</h4>
+      <p class="text-white-50 mb-4" style="font-size: 0.9rem;" id="coverAgendaSub">Satuan Komunitas Pramuka Sekolah Islam Terpadu</p>
+      
+      <div class="p-3 mb-4 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px dashed rgba(212,163,89,0.5);">
+        <small class="text-warning d-block mb-1">Kepada Yth. Bapak/Ibu/Kakak:</small>
+        <h5 class="fw-bold mb-1" id="coverNamaTamu">Bapak / Ibu / Kakak</h5>
+        <small class="text-white-50 d-block" id="coverJabatanTamu"></small>
+      </div>
+
+      <button class="btn btn-buka fs-6" onclick="bukaUndangan()">
+        <i class="fa-solid fa-envelope-open me-2"></i> BUKA UNDANGAN
+      </button>
+    </div>
+  </div>
+
+  <div id="guestView" class="container py-3 d-none">
+    <div class="guest-container">
+      <div class="card-wrapper" id="invitationCardArea">
+        <img src="Undangan.png" alt="Undangan Digital" class="undangan-img" id="undanganMainImg" crossorigin="anonymous" onerror="this.src='https://lh3.googleusercontent.com/d/1Zl9CQud2PZgA1z6sSEG6x6CoEUwM03R1'">
+        
+        <div class="nama-overlay">
+          <div class="nama-text" id="displayNamaTamu">Nama Tamu</div>
+          <div class="jabatan-text" id="displayJabatanTamu">Jabatan Tamu</div>
+        </div>
+      </div>
+
+      <div class="rsvp-section">
+        <h5 class="mb-3 text-secondary"><i class="fa-solid fa-clipboard-check me-2"></i>Konfirmasi Kehadiran</h5>
+        <div id="rsvpButtons" class="d-flex justify-content-center flex-wrap gap-2 mb-3">
+          <button class="btn btn-success btn-rsvp" onclick="submitRSVP('Hadir')">
+            <i class="fa-solid fa-circle-check me-1"></i> Saya Hadir
+          </button>
+          <button class="btn btn-outline-danger btn-rsvp" onclick="submitRSVP('Tidak Hadir')">
+            <i class="fa-solid fa-circle-xmark me-1"></i> Halangan
+          </button>
+          <button class="btn btn-download-pdf ms-md-2" id="pdfBtn" onclick="downloadPDF()">
+            <i class="fa-solid fa-file-pdf me-2"></i> Unduh Undangan PDF
+          </button>
+        </div>
+        <div id="rsvpAlert" class="alert alert-info mt-3 d-none" role="alert"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================================================================= -->
+  <!-- MODALS SYSTEM (UNIVERSAL FAIL-SAFE) -->
+  <!-- ================================================================= -->
+
+  <!-- MODAL BUAT AGENDA BARU -->
+  <div class="modal fade" id="createAgendaModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
         <div class="modal-header bg-danger text-white" style="border-top-left-radius: 18px; border-top-right-radius: 18px;">
           <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-calendar-plus me-2"></i>Tambah Agenda Acara Baru</h5>
-          <button type="button" class="btn-close btn-close-white" onclick="closeModalDirect('addAgendaModal')"></button>
+          <button type="button" class="btn-close btn-close-white" onclick="closeModalDirect('createAgendaModal')"></button>
         </div>
         <div class="modal-body p-4">
-          <form id="addAgendaForm" onsubmit="addAgenda(event)">
+          <form id="createAgendaForm" onsubmit="createAgenda(event)">
             <div class="mb-3">
-              <label class="form-label fw-bold small text-secondary">Nama / Judul Agenda</label>
-              <input type="text" class="form-control" id="agendaJudul" placeholder="Contoh: Upacara Pembukaan Kembaranas III" required>
+              <label class="form-label fw-bold small text-secondary">Nama / Judul Utama Agenda</label>
+              <input type="text" class="form-control" id="newAgendaJudul" placeholder="Contoh: Pembukaan Kembaranas III" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Sub-Judul / Deskripsi Singkat</label>
+              <input type="text" class="form-control" id="newAgendaSub" placeholder="Contoh: PPIM Penegak Tingkat Nasional Sako SIT">
             </div>
             <div class="row g-2 mb-3">
               <div class="col-6">
-                <label class="form-label fw-bold small text-secondary">Tanggal Agenda</label>
-                <input type="text" class="form-control" id="agendaTanggal" placeholder="Contoh: Selasa, 10 Nov 2026" required>
+                <label class="form-label fw-bold small text-secondary">Tanggal Pelaksanaan</label>
+                <input type="text" class="form-control" id="newAgendaTanggal" placeholder="Contoh: 10 - 15 Nov 2026" required>
               </div>
               <div class="col-6">
-                <label class="form-label fw-bold small text-secondary">Waktu / Jam</label>
-                <input type="text" class="form-control" id="agendaWaktu" placeholder="Contoh: 08:00 WIB - Selesai" required>
+                <label class="form-label fw-bold small text-secondary">Lokasi Acara</label>
+                <input type="text" class="form-control" id="newAgendaLokasi" placeholder="Contoh: Buper Kwarda Lampung" required>
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold small text-secondary">Lokasi / Tempat</label>
-              <input type="text" class="form-control" id="agendaLokasi" placeholder="Contoh: Lapangan Utama Kwarda Lampung" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold small text-secondary">Keterangan / Dresscode (Opsional)</label>
-              <textarea class="form-control" id="agendaKet" rows="2" placeholder="Contoh: Seragam Pramuka Lengkap"></textarea>
+              <label class="form-label fw-bold small text-secondary">Template Gambar Undangan (.png / .jpg)</label>
+              <input type="text" class="form-control" id="newAgendaBg" placeholder="Contoh: Undangan.png (atau URL gambar)">
+              <small class="text-muted d-block mt-1">Gunakan <code>Undangan.png</code> jika berkas gambar ada di folder GitHub yang sama.</small>
             </div>
             <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-              <button type="button" class="btn btn-light btn-sm rounded-pill px-3" onclick="closeModalDirect('addAgendaModal')">Batal</button>
-              <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold">Simpan Agenda</button>
+              <button type="button" class="btn btn-light btn-sm rounded-pill px-3" onclick="closeModalDirect('createAgendaModal')">Batal</button>
+              <button type="submit" class="btn btn-danger btn-sm rounded-pill px-4 fw-bold">Buat Agenda Sekarang</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDIT PENGATURAN AGENDA TERPILIH -->
+  <div class="modal fade" id="editAgendaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+        <div class="modal-header bg-warning text-dark" style="border-top-left-radius: 18px; border-top-right-radius: 18px;">
+          <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-gear me-2"></i>Edit Pengaturan Agenda</h5>
+          <button type="button" class="btn-close" onclick="closeModalDirect('editAgendaModal')"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="editAgendaForm" onsubmit="updateAgendaSettings(event)">
+            <input type="hidden" id="editAgendaId">
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Nama / Judul Utama Agenda</label>
+              <input type="text" class="form-control" id="editAgendaJudul" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Sub-Judul / Deskripsi</label>
+              <input type="text" class="form-control" id="editAgendaSub">
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Tanggal Pelaksanaan</label>
+                <input type="text" class="form-control" id="editAgendaTanggal">
+              </div>
+              <div class="col-6">
+                <label class="form-label fw-bold small text-secondary">Lokasi Acara</label>
+                <input type="text" class="form-control" id="editAgendaLokasi">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold small text-secondary">Template Gambar Undangan</label>
+              <input type="text" class="form-control" id="editAgendaBg">
+            </div>
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <button type="button" class="btn btn-outline-danger btn-sm rounded-pill px-3" onclick="deleteCurrentAgenda()">
+                <i class="fa-solid fa-trash me-1"></i> Hapus Agenda Ini
+              </button>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-light btn-sm rounded-pill px-3" onclick="closeModalDirect('editAgendaModal')">Batal</button>
+                <button type="submit" class="btn btn-warning btn-sm rounded-pill px-4 fw-bold">Simpan Perubahan</button>
+              </div>
             </div>
           </form>
         </div>
@@ -759,6 +817,10 @@
     </div>
   </div>
 
+
+  <!-- ================================================================= -->
+  <!-- JAVASCRIPT LOGIC SYSTEM MULTI-AGENDA -->
+  <!-- ================================================================= -->
   <script>
     const fallbackLogoUrl = 'https://lh3.googleusercontent.com/d/1nJu5ER7lWJtRUCFPBUD1KDBGdfdCnpFh=s256';
 
@@ -774,38 +836,46 @@
       img.src = fallbackLogoUrl;
     }
 
-    /* DATA DEFAULT AGENDA */
-    const defaultAgendas = [
-      { id: 101, judul: "Pembukaan Kembaranas III & PPIM", tanggal: "Selasa, 10 Nov 2026", waktu: "08:00 - 11:30 WIB", lokasi: "Lapangan Upacara Kwarda Lampung", ket: "Seragam Pramuka Lengkap" },
-      { id: 102, judul: "Ramah Tamah & Temu Tokoh", tanggal: "Selasa, 10 Nov 2026", waktu: "13:30 - 16:00 WIB", lokasi: "Gedung Utama Sako SIT Lampung", ket: "Batik / Pakaian Bebas Rapi" },
-      { id: 103, judul: "Malam Pentas Seni & Api Unggun", tanggal: "Rabu, 11 Nov 2026", waktu: "19:30 - 22:00 WIB", lokasi: "Panggung Utama Buper", ket: "Pakaian Lapangan Pramuka" }
+    /* DATA DEFAULT AGENDA DEFAULTS */
+    const defaultAgendasData = [
+      {
+        id: "agenda_kembaranas",
+        judul: "KEMBARANAS III & PPIM PENEGAK",
+        sub: "Satuan Komunitas Pramuka Sekolah Islam Terpadu",
+        tanggal: "10 - 15 November 2026",
+        lokasi: "Lapangan Upacara Kwarda Lampung",
+        bgImage: "Undangan.png",
+        guests: [
+          { id: 1, nama: "Kak Feri Susanto, S.Kom", jabatan: "Panitia Kembaranas III", wa: "6281234567890", terkirim: true, rsvp: "Hadir" },
+          { id: 2, nama: "Bapak Ka. Kwarda Lampung", jabatan: "Kwarda Lampung", wa: "6281987654321", terkirim: false, rsvp: "Belum Respon" }
+        ]
+      },
+      {
+        id: "agenda_rakerda",
+        judul: "RAKERDA SAKO SIT LAMPUNG",
+        sub: "Rapat Kerja Daerah Sako Pramuka SIT Lampung",
+        tanggal: "20 Desember 2026",
+        lokasi: "Gedung Sako SIT Lampung",
+        bgImage: "Undangan.png",
+        guests: [
+          { id: 101, nama: "Kakak Ketua Sako SIT Lampung", jabatan: "Pengurus Sako", wa: "6281234567000", terkirim: false, rsvp: "Belum Respon" }
+        ]
+      }
     ];
 
-    /* DATA DEFAULT TAMU */
-    const defaultGuests = [
-      { id: 1, nama: "Kak Feri Susanto, S.Kom", jabatan: "Panitia Kembaranas III", wa: "6281234567890", terkirim: true, rsvp: "Hadir" },
-      { id: 2, nama: "Bapak Ka. Kwarda Lampung", jabatan: "Kwarda Lampung", wa: "6281987654321", terkirim: false, rsvp: "Belum Respon" },
-      { id: 3, nama: "Kakak Ket Sako SIT Nasional", jabatan: "Sako Pramuka SIT", wa: "", terkirim: false, rsvp: "Belum Respon" }
-    ];
-
-    let agendas = JSON.parse(localStorage.getItem("kembaranas_agendas")) || defaultAgendas;
-    let guests = JSON.parse(localStorage.getItem("kembaranas_guests")) || defaultGuests;
+    /* SYSTEM STATE */
+    let agendasData = JSON.parse(localStorage.getItem("multi_agenda_app_data")) || defaultAgendasData;
+    let activeAgendaId = null;
 
     let currentPage = 1;
     let rowsPerPage = 10;
     let currentRsvpFilter = 'all';
 
-    function saveAgendas() {
-      localStorage.setItem("kembaranas_agendas", JSON.stringify(agendas));
-      renderAgendas();
+    function saveAppData() {
+      localStorage.setItem("multi_agenda_app_data", JSON.stringify(agendasData));
     }
 
-    function saveGuests() {
-      localStorage.setItem("kembaranas_guests", JSON.stringify(guests));
-      renderDashboard();
-    }
-
-    /* MODAL STANDALONE CONTROLLER */
+    /* STANDALONE MODAL CONTROLLER */
     function showModalDirect(modalId) {
       const modalEl = document.getElementById(modalId);
       if (!modalEl) return;
@@ -817,7 +887,7 @@
           modalInstance.show();
           return;
         } catch (e) {
-          console.warn("Bootstrap Modal fallback active:", e);
+          console.warn("Bootstrap Modal fallback:", e);
         }
       }
 
@@ -834,7 +904,7 @@
           const modalInstance = bootstrap.Modal.getInstance(modalEl);
           if (modalInstance) modalInstance.hide();
         } catch (e) {
-          console.warn("Bootstrap hide error:", e);
+          console.warn("Bootstrap hide fallback:", e);
         }
       }
 
@@ -842,309 +912,178 @@
       document.body.style.overflow = '';
     }
 
-    /* RENDER AGENDA UNTUK UNDANGAN TAMU & TABEL ADMIN */
-    function renderAgendas() {
-      // 1. Tampilan Guest
-      const guestContainer = document.getElementById('guestAgendaList');
-      if (guestContainer) {
-        guestContainer.innerHTML = '';
-        if (agendas.length === 0) {
-          guestContainer.innerHTML = '<p class="text-center text-muted small">Belum ada agenda acara yang ditambahkan.</p>';
-        } else {
-          agendas.forEach((a, idx) => {
-            const div = document.createElement('div');
-            div.className = 'agenda-card-item';
-            div.innerHTML = `
-              <div class="d-flex justify-content-between align-items-start mb-1">
-                <h6 class="fw-bold text-dark mb-0">${idx + 1}. ${escapeHtml(a.judul)}</h6>
-                <span class="badge bg-warning text-dark"><i class="fa-solid fa-clock me-1"></i>${escapeHtml(a.waktu)}</span>
-              </div>
-              <div class="small text-secondary mb-1"><i class="fa-solid fa-calendar me-1"></i>${escapeHtml(a.tanggal)}</div>
-              <div class="small text-danger fw-semibold"><i class="fa-solid fa-location-dot me-1"></i>${escapeHtml(a.lokasi)}</div>
-              ${a.ket ? `<div class="mt-2 pt-2 border-top border-light text-muted small"><i class="fa-solid fa-circle-info me-1"></i>${escapeHtml(a.ket)}</div>` : ''}
-            `;
-            guestContainer.appendChild(div);
-          });
-        }
-      }
-
-      // 2. Tabel Admin Agenda
-      const adminBody = document.getElementById('agendaAdminTableBody');
-      if (adminBody) {
-        adminBody.innerHTML = '';
-        if (agendas.length === 0) {
-          adminBody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Belum ada agenda. Silakan tambah agenda baru.</td></tr>';
-        } else {
-          agendas.forEach((a, index) => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${index + 1}</td>
-              <td class="fw-bold text-primary">${escapeHtml(a.judul)}</td>
-              <td>${escapeHtml(a.tanggal)} <br><small class="text-muted">${escapeHtml(a.waktu)}</small></td>
-              <td>${escapeHtml(a.lokasi)}</td>
-              <td>${escapeHtml(a.ket || '-')}</td>
-              <td class="text-center">
-                <button onclick="deleteAgenda('${a.id}')" class="btn btn-sm btn-outline-danger" title="Hapus Agenda">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </td>
-            `;
-            adminBody.appendChild(tr);
-          });
-        }
-      }
-    }
-
-    function addAgenda(e) {
-      e.preventDefault();
-      const judul = document.getElementById('agendaJudul').value.trim();
-      const tanggal = document.getElementById('agendaTanggal').value.trim();
-      const waktu = document.getElementById('agendaWaktu').value.trim();
-      const lokasi = document.getElementById('agendaLokasi').value.trim();
-      const ket = document.getElementById('agendaKet').value.trim();
-
-      if (judul && tanggal && waktu && lokasi) {
-        agendas.push({
-          id: Date.now(),
-          judul, tanggal, waktu, lokasi, ket
-        });
-        saveAgendas();
-        document.getElementById('addAgendaForm').reset();
-        closeModalDirect('addAgendaModal');
-        showPopNotification("Agenda Ditambahkan! 📅", "Rangkaian agenda acara baru berhasil disimpan.");
-      }
-    }
-
-    function deleteAgenda(id) {
-      if (confirm("Apakah Anda yakin ingin menghapus agenda acara ini?")) {
-        agendas = agendas.filter(a => a.id != id);
-        saveAgendas();
-      }
-    }
-
-    /* KONTROL IMPOR DARI TEMPLATE EXCEL */
-    function triggerImportExcel() {
-      document.getElementById('importExcelInput').click();
-    }
-
-    function importExcel(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        try {
-          const data = new Uint8Array(evt.target.result);
-          const workbook = XLSX.read(data, { type: 'array' });
-          const firstSheetName = workbook.SheetNames[0];
-          const worksheet = workbook.Sheets[firstSheetName];
-          const json = XLSX.utils.sheet_to_json(worksheet);
-
-          if (!json || json.length === 0) {
-            alert("Berkas Excel kosong atau format tidak sesuai.");
-            return;
-          }
-
-          let importedCount = 0;
-          json.forEach(row => {
-            const nama = row["Nama Penerima"] || row["Nama"] || row["nama"] || row["NAMA"];
-            if (nama) {
-              const jabatan = row["Jabatan / Utusan"] || row["Jabatan"] || row["jabatan"] || row["JABATAN"] || "";
-              let wa = String(row["No WhatsApp"] || row["No WA"] || row["WhatsApp"] || row["WA"] || row["wa"] || "").replace(/[^0-9]/g, '');
-              if (wa.startsWith('0')) wa = '62' + wa.slice(1);
-
-              const statusKirim = String(row["Status Kirim"] || "").toLowerCase();
-              const terkirim = statusKirim.includes("sudah") || statusKirim.includes("terkirim") || row["terkirim"] === true;
-
-              const rsvpVal = row["Konfirmasi Kehadiran (RSVP)"] || row["RSVP"] || row["rsvp"] || "Belum Respon";
-
-              guests.push({
-                id: Date.now() + Math.floor(Math.random() * 10000),
-                nama: String(nama).trim(),
-                jabatan: String(jabatan).trim(),
-                wa: wa,
-                terkirim: Boolean(terkirim),
-                rsvp: rsvpVal
-              });
-              importedCount++;
-            }
-          });
-
-          if (importedCount > 0) {
-            saveGuests();
-            showPopNotification("Impor Data Berhasil! 🎉", `Berhasil memasukkan ${importedCount} data tamu baru dari berkas Excel.`);
-          } else {
-            alert("Tidak ditemukan data nama tamu yang valid dalam berkas Excel.");
-          }
-        } catch (err) {
-          console.error("Import Excel Error:", err);
-          alert("Gagal membaca berkas Excel. Pastikan file dalam format .xlsx atau .xls yang valid.");
-        } finally {
-          e.target.value = '';
-        }
-      };
-      reader.readAsArrayBuffer(file);
-    }
-
-    /* EDIT DATA TAMU */
-    function editGuest(id) {
-      const g = guests.find(x => x.id == id);
-      if (g) {
-        document.getElementById('editGuestId').value = g.id;
-        document.getElementById('editNama').value = g.nama || '';
-        document.getElementById('editJabatan').value = g.jabatan || '';
-        document.getElementById('editWA').value = g.wa || '';
-        document.getElementById('editTerkirim').value = g.terkirim ? 'true' : 'false';
-        document.getElementById('editRSVP').value = g.rsvp || 'Belum Respon';
-
-        showModalDirect('editGuestModal');
-      } else {
-        alert("Data tamu tidak ditemukan.");
-      }
-    }
-
-    function updateGuest(e) {
-      e.preventDefault();
-      const id = document.getElementById('editGuestId').value;
-      const g = guests.find(x => x.id == id);
-
-      if (g) {
-        g.nama = document.getElementById('editNama').value.trim();
-        g.jabatan = document.getElementById('editJabatan').value.trim();
-        
-        let wa = document.getElementById('editWA').value.trim().replace(/[^0-9]/g, '');
-        if (wa.startsWith('0')) wa = '62' + wa.slice(1);
-        g.wa = wa;
-
-        g.terkirim = document.getElementById('editTerkirim').value === 'true';
-        g.rsvp = document.getElementById('editRSVP').value;
-
-        saveGuests();
-        closeModalDirect('editGuestModal');
-        showPopNotification("Data Diperbarui! ✏️", "Perubahan data tamu berhasil disimpan.");
-      }
-    }
-
-    function toggleExpandSearch(forceState) {
-      const container = document.getElementById('searchBoxContainer');
-      const input = document.getElementById('searchBox');
-      const icon = document.getElementById('searchIcon');
-
-      let isExpanded = container.classList.contains('expanded');
-      let shouldExpand = (typeof forceState === 'boolean') ? forceState : !isExpanded;
-
-      if (shouldExpand) {
-        container.classList.add('expanded');
-        icon.className = 'fa-solid fa-xmark text-danger';
-        setTimeout(() => input.focus(), 150);
-      } else {
-        container.classList.remove('expanded');
-        icon.className = 'fa-solid fa-magnifying-glass';
-        if (input.value) {
-          input.value = '';
-          filterGuests();
-        }
-      }
-    }
-
-    function toggleSidebar(forceState) {
-      const sidebarEl = document.getElementById('leftSidebarNav');
-      const overlayEl = document.getElementById('sidebarOverlay');
-      const iconEl = document.getElementById('hamburgerIcon');
-
-      let shouldOpen = (typeof forceState === 'boolean') ? forceState : !sidebarEl.classList.contains('active');
-
-      if (shouldOpen) {
-        sidebarEl.classList.add('active');
-        overlayEl.classList.add('active');
-        if (iconEl) iconEl.className = 'fa-solid fa-xmark';
-      } else {
-        sidebarEl.classList.remove('active');
-        overlayEl.classList.remove('active');
-        if (iconEl) iconEl.className = 'fa-solid fa-bars';
-      }
-    }
-
-    function initView() {
+    /* INITIALIZATION & ROUTING */
+    function initApp() {
       setupFavicon();
 
       const urlParams = new URLSearchParams(window.location.search);
       const guestName = urlParams.get('to');
-      const guestJabatan = urlParams.get('j') || urlParams.get('jabatan') || "";
-      const mode = urlParams.get('mode');
-
-      renderAgendas();
+      const agendaIdParam = urlParams.get('agenda') || urlParams.get('a');
 
       if (guestName) {
-        document.getElementById('coverNamaTamu').innerText = guestName;
-        document.getElementById('coverJabatanTamu').innerText = guestJabatan;
-        document.getElementById('displayNamaTamu').innerText = guestName;
-        document.getElementById('displayJabatanTamu').innerText = guestJabatan;
-        
-        document.getElementById('coverView').classList.remove('d-none');
-        document.getElementById('guestView').classList.add('d-none');
-        document.getElementById('adminView').classList.add('d-none');
-      } else if (mode === 'admin' || !guestName) {
-        showAdminView();
-      }
-    }
-
-    function bukaUndangan() {
-      document.getElementById('coverView').classList.add('d-none');
-      document.getElementById('guestView').classList.remove('d-none');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function switchViewFromSidebar(targetView) {
-      if (targetView === 'admin') {
-        showAdminView();
+        // Mode Tampilan Tamu
+        const targetAgenda = agendasData.find(a => a.id === agendaIdParam) || agendasData[0];
+        showGuestViewMode(targetAgenda, guestName, urlParams.get('j') || urlParams.get('jabatan') || "");
       } else {
-        showGuestView();
+        // Mode Admin Selector
+        renderAgendaSelector();
       }
-      toggleSidebar(false);
     }
 
-    function showAdminView() {
+    /* 1. SELEKTOR AGENDA (HALAMAN UTAMA/DOKS DAFTAR AGENDA) */
+    function renderAgendaSelector() {
+      document.getElementById('agendaSelectorView').classList.remove('d-none');
+      document.getElementById('adminView').classList.add('d-none');
       document.getElementById('coverView').classList.add('d-none');
       document.getElementById('guestView').classList.add('d-none');
+
+      const container = document.getElementById('agendaGridContainer');
+      container.innerHTML = '';
+
+      if (agendasData.length === 0) {
+        container.innerHTML = `
+          <div class="col-12 text-center py-5">
+            <i class="fa-solid fa-folder-open text-muted display-4 d-block mb-3"></i>
+            <h5>Belum ada agenda acara. Silakan buat agenda pertama Anda!</h5>
+          </div>
+        `;
+        return;
+      }
+
+      agendasData.forEach(agenda => {
+        const guestCount = agenda.guests ? agenda.guests.length : 0;
+        const terkirimCount = agenda.guests ? agenda.guests.filter(g => g.terkirim).length : 0;
+
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4';
+        col.innerHTML = `
+          <div class="agenda-card h-100" onclick="selectAgenda('${agenda.id}')">
+            <div class="agenda-card-header">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <span class="agenda-badge-count"><i class="fa-solid fa-users me-1"></i>${guestCount} Tamu</span>
+                <span class="badge bg-warning text-dark">${terkirimCount} Terkirim</span>
+              </div>
+              <h5 class="fw-bold mb-0 text-truncate">${escapeHtml(agenda.judul)}</h5>
+            </div>
+            <div class="p-3">
+              <p class="text-muted small mb-2 text-truncate">${escapeHtml(agenda.sub || 'Tidak ada deskripsi')}</p>
+              <div class="small text-secondary mb-1"><i class="fa-solid fa-calendar me-2 text-warning"></i>${escapeHtml(agenda.tanggal || '-')}</div>
+              <div class="small text-secondary"><i class="fa-solid fa-location-dot me-2 text-danger"></i>${escapeHtml(agenda.lokasi || '-')}</div>
+              <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
+                <span class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Kelola Agenda &rarr;</span>
+                <small class="text-muted">ID: ${agenda.id}</small>
+              </div>
+            </div>
+          </div>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    function createAgenda(e) {
+      e.preventDefault();
+      const judul = document.getElementById('newAgendaJudul').value.trim();
+      const sub = document.getElementById('newAgendaSub').value.trim();
+      const tanggal = document.getElementById('newAgendaTanggal').value.trim();
+      const lokasi = document.getElementById('newAgendaLokasi').value.trim();
+      let bg = document.getElementById('newAgendaBg').value.trim();
+      if (!bg) bg = 'Undangan.png';
+
+      const newId = 'agenda_' + Date.now();
+
+      const newAgendaObj = {
+        id: newId,
+        judul, sub, tanggal, lokasi, bgImage: bg,
+        guests: []
+      };
+
+      agendasData.push(newAgendaObj);
+      saveAppData();
+
+      document.getElementById('createAgendaForm').reset();
+      closeModalDirect('createAgendaModal');
+      showPopNotification("Agenda Dibuat! 🎉", `Agenda "${judul}" berhasil dibuat. Silakan kelola penerima undangannya.`);
+
+      selectAgenda(newId);
+    }
+
+    /* 2. DASHBOARD AGENDA TERPILIH */
+    function selectAgenda(id) {
+      activeAgendaId = id;
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      document.getElementById('agendaSelectorView').classList.add('d-none');
       document.getElementById('adminView').classList.remove('d-none');
-      
-      document.getElementById('menuItemAdmin').classList.add('active');
-      document.getElementById('menuItemGuest').classList.remove('active');
-
-      renderDashboard();
-    }
-
-    function showGuestView() {
       document.getElementById('coverView').classList.add('d-none');
-      document.getElementById('adminView').classList.add('d-none');
-      document.getElementById('guestView').classList.remove('d-none');
+      document.getElementById('guestView').classList.add('d-none');
 
-      document.getElementById('menuItemGuest').classList.add('active');
-      document.getElementById('menuItemAdmin').classList.remove('active');
-    }
-
-    function setRsvpFilter(status) {
-      currentRsvpFilter = status;
-      currentPage = 1;
-
-      document.getElementById('btnFilterAll').classList.toggle('active', status === 'all');
-      document.getElementById('btnFilterHadir').classList.toggle('active', status === 'Hadir');
-      document.getElementById('btnFilterTidakHadir').classList.toggle('active', status === 'Tidak Hadir');
-      document.getElementById('btnFilterBelum').classList.toggle('active', status === 'Belum Respon');
+      document.getElementById('currentAgendaDisplayTitle').innerText = agenda.judul;
+      document.getElementById('currentAgendaDisplaySub').innerText = agenda.sub || agenda.lokasi;
+      document.getElementById('sidebarAgendaTitle').innerText = agenda.judul;
 
       renderDashboard();
     }
 
-    function applyRsvpFilterFromSidebar(status) {
-      showAdminView();
-      setRsvpFilter(status);
-      toggleSidebar(false);
+    function returnToAgendaList() {
+      activeAgendaId = null;
+      renderAgendaSelector();
     }
 
-    function renderDashboard() {
-      renderAgendas();
+    function getCurrentAgenda() {
+      return agendasData.find(a => a.id === activeAgendaId);
+    }
 
+    function openEditAgendaModal() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      document.getElementById('editAgendaId').value = agenda.id;
+      document.getElementById('editAgendaJudul').value = agenda.judul || '';
+      document.getElementById('editAgendaSub').value = agenda.sub || '';
+      document.getElementById('editAgendaTanggal').value = agenda.tanggal || '';
+      document.getElementById('editAgendaLokasi').value = agenda.lokasi || '';
+      document.getElementById('editAgendaBg').value = agenda.bgImage || 'Undangan.png';
+
+      showModalDirect('editAgendaModal');
+    }
+
+    function updateAgendaSettings(e) {
+      e.preventDefault();
+      const agenda = getCurrentAgenda();
+      if (agenda) {
+        agenda.judul = document.getElementById('editAgendaJudul').value.trim();
+        agenda.sub = document.getElementById('editAgendaSub').value.trim();
+        agenda.tanggal = document.getElementById('editAgendaTanggal').value.trim();
+        agenda.lokasi = document.getElementById('editAgendaLokasi').value.trim();
+        agenda.bgImage = document.getElementById('editAgendaBg').value.trim() || 'Undangan.png';
+
+        saveAppData();
+        closeModalDirect('editAgendaModal');
+        selectAgenda(agenda.id);
+        showPopNotification("Pengaturan Disimpan! ⚙️", "Detail agenda berhasil diperbarui.");
+      }
+    }
+
+    function deleteCurrentAgenda() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      if (confirm(`Apakah Anda yakin ingin menghapus agenda "${agenda.judul}" beserta seluruh data tamunya?`)) {
+        agendasData = agendasData.filter(a => a.id !== agenda.id);
+        saveAppData();
+        closeModalDirect('editAgendaModal');
+        returnToAgendaList();
+        showPopNotification("Agenda Dihapus", "Agenda berhasil dihapus dari sistem.");
+      }
+    }
+
+    /* KONTROL TAMU UNTUK AGENDA TERPILIH */
+    function renderDashboard() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const guests = agenda.guests || [];
       let total = guests.length;
       let terkirimCount = guests.filter(g => g.terkirim).length;
       let belumKirimCount = total - terkirimCount;
@@ -1195,16 +1134,15 @@
       tbody.innerHTML = '';
 
       if (pageGuests.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-inbox display-6 d-block mb-2"></i>Tidak ada data tamu yang sesuai filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-inbox display-6 d-block mb-2"></i>Tidak ada data tamu di agenda ini.</td></tr>`;
       } else {
         const baseUrl = window.location.origin + window.location.pathname;
 
         pageGuests.forEach((g, index) => {
           const actualIndex = startIndex + index + 1;
-          const inviteLink = `${baseUrl}?to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
+          const inviteLink = `${baseUrl}?agenda=${encodeURIComponent(agenda.id)}&to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
           
-          let agendaSummaryText = agendas.map(a => `• *${a.judul}* (${a.tanggal} - ${a.waktu})`).join('\n');
-          const waText = `Assalamu'alaikum Wr. Wb. Kak/Bpk/Ibu *${g.nama}*,\n\nKami mengundang Anda untuk hadir pada Rangkaian Agenda Acara SAKO PRAMUKA SIT:\n\n${agendaSummaryText}\n\nDetail Undangan Digital & Konfirmasi Kehadiran Anda dapat diakses melalui tautan berikut:\n${inviteLink}\n\nTerima kasih.`;
+          const waText = `Assalamu'alaikum Wr. Wb. Kak/Bpk/Ibu *${g.nama}*,\n\nKami mengundang Anda untuk hadir pada acara *${agenda.judul}* (${agenda.tanggal || ''}).\n\nDetail Undangan Digital Anda dapat diakses melalui tautan berikut:\n${inviteLink}\n\nTerima kasih.`;
           const waLink = `https://api.whatsapp.com/send?phone=${g.wa}&text=${encodeURIComponent(waText)}`;
 
           const tr = document.createElement('tr');
@@ -1296,8 +1234,28 @@
       renderDashboard();
     }
 
+    function setRsvpFilter(status) {
+      currentRsvpFilter = status;
+      currentPage = 1;
+
+      document.getElementById('btnFilterAll').classList.toggle('active', status === 'all');
+      document.getElementById('btnFilterHadir').classList.toggle('active', status === 'Hadir');
+      document.getElementById('btnFilterTidakHadir').classList.toggle('active', status === 'Tidak Hadir');
+      document.getElementById('btnFilterBelum').classList.toggle('active', status === 'Belum Respon');
+
+      renderDashboard();
+    }
+
+    function applyRsvpFilterFromSidebar(status) {
+      setRsvpFilter(status);
+      toggleSidebar(false);
+    }
+
     function addGuest(e) {
       e.preventDefault();
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
       const nama = document.getElementById('inputNama').value.trim();
       const jabatan = document.getElementById('inputJabatan').value.trim();
       let wa = document.getElementById('inputWA').value.trim().replace(/[^0-9]/g, '');
@@ -1305,7 +1263,8 @@
       if (wa.startsWith('0')) wa = '62' + wa.slice(1);
 
       if (nama) {
-        guests.push({
+        if (!agenda.guests) agenda.guests = [];
+        agenda.guests.push({
           id: Date.now(),
           nama: nama,
           jabatan: jabatan,
@@ -1313,70 +1272,114 @@
           terkirim: false,
           rsvp: 'Belum Respon'
         });
-        saveGuests();
+        saveAppData();
         document.getElementById('addGuestForm').reset();
-        showPopNotification("Tamu Ditambahkan! 🎉", "Penerima undangan baru berhasil dimasukkan ke daftar laporan.");
+        renderDashboard();
+        showPopNotification("Tamu Ditambahkan! 🎉", `Tamu baru berhasil dimasukkan ke agenda "${agenda.judul}".`);
+      }
+    }
+
+    function editGuest(id) {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const g = agenda.guests.find(x => x.id == id);
+      if (g) {
+        document.getElementById('editGuestId').value = g.id;
+        document.getElementById('editNama').value = g.nama || '';
+        document.getElementById('editJabatan').value = g.jabatan || '';
+        document.getElementById('editWA').value = g.wa || '';
+        document.getElementById('editTerkirim').value = g.terkirim ? 'true' : 'false';
+        document.getElementById('editRSVP').value = g.rsvp || 'Belum Respon';
+
+        showModalDirect('editGuestModal');
+      }
+    }
+
+    function updateGuest(e) {
+      e.preventDefault();
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const id = document.getElementById('editGuestId').value;
+      const g = agenda.guests.find(x => x.id == id);
+
+      if (g) {
+        g.nama = document.getElementById('editNama').value.trim();
+        g.jabatan = document.getElementById('editJabatan').value.trim();
+        
+        let wa = document.getElementById('editWA').value.trim().replace(/[^0-9]/g, '');
+        if (wa.startsWith('0')) wa = '62' + wa.slice(1);
+        g.wa = wa;
+
+        g.terkirim = document.getElementById('editTerkirim').value === 'true';
+        g.rsvp = document.getElementById('editRSVP').value;
+
+        saveAppData();
+        closeModalDirect('editGuestModal');
+        renderDashboard();
+        showPopNotification("Data Diperbarui! ✏️", "Perubahan data tamu berhasil disimpan.");
       }
     }
 
     function markAsSent(id) {
-      const g = guests.find(x => x.id == id);
-      if (g) {
-        g.terkirim = true;
-        saveGuests();
+      const agenda = getCurrentAgenda();
+      if (agenda) {
+        const g = agenda.guests.find(x => x.id == id);
+        if (g) {
+          g.terkirim = true;
+          saveAppData();
+        }
       }
     }
 
     function deleteGuest(id) {
-      if (confirm("Apakah Anda yakin ingin menghapus nama tamu ini?")) {
-        guests = guests.filter(x => x.id != id);
-        saveGuests();
+      const agenda = getCurrentAgenda();
+      if (agenda && confirm("Apakah Anda yakin ingin menghapus data tamu ini?")) {
+        agenda.guests = agenda.guests.filter(x => x.id != id);
+        saveAppData();
+        renderDashboard();
       }
     }
 
-    function copyLink(link) {
-      navigator.clipboard.writeText(link);
-      showPopNotification("Link Berhasil Disalin! ✨", "Tautan undangan kustom siap dikirimkan.");
+    /* 3. DISPLAY UNDANGAN TAMU (GUEST MODE) */
+    function showGuestViewMode(agenda, guestName, guestJabatan) {
+      document.getElementById('agendaSelectorView').classList.add('d-none');
+      document.getElementById('adminView').classList.add('d-none');
+      document.getElementById('coverView').classList.remove('d-none');
+      document.getElementById('guestView').classList.add('d-none');
+
+      document.getElementById('coverAgendaJudul').innerText = agenda.judul;
+      document.getElementById('coverAgendaSub').innerText = agenda.sub || agenda.lokasi;
+      document.getElementById('coverNamaTamu').innerText = guestName;
+      document.getElementById('coverJabatanTamu').innerText = guestJabatan;
+
+      document.getElementById('displayNamaTamu').innerText = guestName;
+      document.getElementById('displayJabatanTamu').innerText = guestJabatan;
+
+      if (agenda.bgImage) {
+        document.getElementById('undanganMainImg').src = agenda.bgImage;
+      }
     }
 
-    function copyWALaporan() {
-      const total = guests.length;
-      const terkirim = guests.filter(g => g.terkirim).length;
-      const hadir = guests.filter(g => g.rsvp === 'Hadir').length;
-      const tdkHadir = guests.filter(g => g.rsvp === 'Tidak Hadir').length;
-
-      const reportText = `*LAPORAN PROGRES UNDANGAN MULTI-AGENDA*\n` +
-        `*Rangkaian Acara Sako Pramuka SIT*\n` +
-        `----------------------------------------\n` +
-        `📊 *Ringkasan Status:*\n` +
-        `• Total Target Undangan: ${total}\n` +
-        `• Terkirim WA: ${terkirim} (${total ? Math.round((terkirim/total)*100) : 0}%)\n` +
-        `• Belum Terkirim: ${total - terkirim}\n\n` +
-        `📥 *Konfirmasi Kehadiran (RSVP):*\n` +
-        `• Konfirmasi Hadir: ${hadir}\n` +
-        `• Halangan: ${tdkHadir}\n` +
-        `• Belum Menjawab: ${total - (hadir + tdkHadir)}\n\n` +
-        `_Laporan ini diperbarui otomatis dari sistem digital._`;
-
-      navigator.clipboard.writeText(reportText);
-      showPopNotification("Laporan Disalin! 📋", "Teks laporan format WhatsApp telah disalin.");
-    }
-
-    function showPopNotification(title, message) {
-      document.getElementById('popTitle').innerText = title;
-      document.getElementById('popMessage').innerText = message;
-      showModalDirect('popNotificationModal');
+    function bukaUndangan() {
+      document.getElementById('coverView').classList.add('d-none');
+      document.getElementById('guestView').classList.remove('d-none');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function submitRSVP(status) {
       const urlParams = new URLSearchParams(window.location.search);
+      const agendaIdParam = urlParams.get('agenda') || urlParams.get('a');
       const currentName = urlParams.get('to');
 
-      if (currentName) {
-        const guest = guests.find(g => g.nama.toLowerCase() === currentName.toLowerCase());
+      const agenda = agendasData.find(a => a.id === agendaIdParam) || agendasData[0];
+
+      if (agenda && currentName) {
+        const guest = agenda.guests.find(g => g.nama.toLowerCase() === currentName.toLowerCase());
         if (guest) {
           guest.rsvp = status;
-          saveGuests();
+          saveAppData();
         }
       }
 
@@ -1387,8 +1390,153 @@
         alertBox.innerHTML = "<i class='fa-solid fa-circle-check me-2'></i>Terima kasih atas konfirmasi Anda. Sampai jumpa di lokasi acara!";
       } else {
         alertBox.className = "alert alert-warning mt-3";
-        alertBox.innerHTML = "<i class='fa-solid fa-circle-info me-2'></i>Terima kasih atas konfirmasinya. Mohon doa agar seluruh rangkaian acara berjalan lancar.";
+        alertBox.innerHTML = "<i class='fa-solid fa-circle-info me-2'></i>Terima kasih atas konfirmasinya. Mohon doa agar acara berjalan lancar.";
       }
+    }
+
+    /* UTILITIES: EXCEL & PDF & COPY */
+    function triggerImportExcel() {
+      document.getElementById('importExcelInput').click();
+    }
+
+    function importExcel(e) {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const json = XLSX.utils.sheet_to_json(worksheet);
+
+          if (!json || json.length === 0) {
+            alert("Berkas Excel kosong.");
+            return;
+          }
+
+          let importedCount = 0;
+          if (!agenda.guests) agenda.guests = [];
+
+          json.forEach(row => {
+            const nama = row["Nama Penerima"] || row["Nama"] || row["nama"] || row["NAMA"];
+            if (nama) {
+              const jabatan = row["Jabatan / Utusan"] || row["Jabatan"] || row["jabatan"] || row["JABATAN"] || "";
+              let wa = String(row["No WhatsApp"] || row["No WA"] || row["WhatsApp"] || row["WA"] || row["wa"] || "").replace(/[^0-9]/g, '');
+              if (wa.startsWith('0')) wa = '62' + wa.slice(1);
+
+              const statusKirim = String(row["Status Kirim"] || "").toLowerCase();
+              const terkirim = statusKirim.includes("sudah") || statusKirim.includes("terkirim") || row["terkirim"] === true;
+              const rsvpVal = row["Konfirmasi Kehadiran (RSVP)"] || row["RSVP"] || row["rsvp"] || "Belum Respon";
+
+              agenda.guests.push({
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                nama: String(nama).trim(),
+                jabatan: String(jabatan).trim(),
+                wa: wa,
+                terkirim: Boolean(terkirim),
+                rsvp: rsvpVal
+              });
+              importedCount++;
+            }
+          });
+
+          if (importedCount > 0) {
+            saveAppData();
+            renderDashboard();
+            showPopNotification("Impor Berhasil! 🎉", `Berhasil memasukkan ${importedCount} data tamu ke agenda "${agenda.judul}".`);
+          } else {
+            alert("Tidak ada nama tamu valid dalam berkas Excel.");
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Gagal membaca Excel.");
+        } finally {
+          e.target.value = '';
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
+
+    function exportExcel() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const baseUrl = window.location.origin + window.location.pathname;
+      const guests = agenda.guests || [];
+
+      const excelData = guests.map((g, index) => {
+        const inviteLink = `${baseUrl}?agenda=${encodeURIComponent(agenda.id)}&to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
+        return {
+          "No": index + 1,
+          "Nama Penerima": g.nama,
+          "Jabatan / Utusan": g.jabatan || "-",
+          "No WhatsApp": g.wa || "-",
+          "Link Undangan Online": inviteLink,
+          "Status Kirim": g.terkirim ? "Sudah Terkirim" : "Belum Terkirim",
+          "Konfirmasi Kehadiran (RSVP)": g.rsvp
+        };
+      });
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      worksheet['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 65 }, { wch: 15 }, { wch: 20 }];
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Tamu");
+      XLSX.writeFile(workbook, `Data_Tamu_${agenda.id}.xlsx`);
+
+      showPopNotification("Export Excel Berhasil! 📊", "File .xlsx berhasil diunduh.");
+    }
+
+    function exportCSV() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      let csv = "Nama,Jabatan,No WA,Status Terkirim,RSVP\n";
+      (agenda.guests || []).forEach(g => {
+        csv += `"${g.nama}","${g.jabatan}","${g.wa}","${g.terkirim ? 'Sudah' : 'Belum'}","${g.rsvp}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = window.URL.createObjectURL(blob);
+      link.download = `Laporan_Tamu_${agenda.id}.csv`;
+      link.click();
+    }
+
+    function copyLink(link) {
+      navigator.clipboard.writeText(link);
+      showPopNotification("Link Disalin! ✨", "Tautan kustom siap dikirimkan.");
+    }
+
+    function copyWALaporan() {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      const guests = agenda.guests || [];
+      const total = guests.length;
+      const terkirim = guests.filter(g => g.terkirim).length;
+      const hadir = guests.filter(g => g.rsvp === 'Hadir').length;
+      const tdkHadir = guests.filter(g => g.rsvp === 'Tidak Hadir').length;
+
+      const reportText = `*LAPORAN PENGIRIMAN UNDANGAN*\n` +
+        `*${agenda.judul}*\n` +
+        `----------------------------------------\n` +
+        `📊 *Status pengiriman:*\n` +
+        `• Target Undangan: ${total}\n` +
+        `• Terkirim WA: ${terkirim} (${total ? Math.round((terkirim/total)*100) : 0}%)\n` +
+        `• Belum Terkirim: ${total - terkirim}\n\n` +
+        `📥 *Konfirmasi Kehadiran (RSVP):*\n` +
+        `• Hadir: ${hadir}\n` +
+        `• Halangan: ${tdkHadir}\n` +
+        `• Belum Menjawab: ${total - (hadir + tdkHadir)}\n\n` +
+        `_Laporan otomatis dari Sistem Undangan Digital._`;
+
+      navigator.clipboard.writeText(reportText);
+      showPopNotification("Laporan Disalin! 📋", "Teks laporan format WA telah disalin.");
     }
 
     async function downloadPDF() {
@@ -1400,13 +1548,13 @@
       }
 
       try {
-        const guestContainerEl = document.querySelector('.guest-container');
+        const cardArea = document.getElementById('invitationCardArea');
         const namaEl = document.getElementById('displayNamaTamu');
         const nama = (namaEl ? namaEl.innerText : '').trim() || 'Tamu';
         const cleanName = nama.replace(/[^a-zA-Z0-9]/g, '_');
-        const filename = `Undangan_MultiAgenda_${cleanName}.pdf`;
+        const filename = `Undangan_${cleanName}.pdf`;
 
-        const canvas = await html2canvas(guestContainerEl, {
+        const canvas = await html2canvas(cardArea, {
           scale: 2,
           useCORS: true,
           allowTaint: true,
@@ -1427,7 +1575,7 @@
         pdf.addImage(imgData, 'JPEG', 0, positionY, imgWidth, imgHeight);
         pdf.save(filename);
 
-        showPopNotification("Unduh PDF Berhasil! 📄", `Undangan (${filename}) berhasil dibuat dan diunduh.`);
+        showPopNotification("Unduh PDF Berhasil! 📄", `Undangan (${filename}) berhasil diunduh.`);
       } catch (err) {
         console.error("PDF generation error:", err);
         window.print();
@@ -1439,48 +1587,69 @@
       }
     }
 
-    function exportExcel() {
-      const baseUrl = window.location.origin + window.location.pathname;
+    function toggleExpandSearch(forceState) {
+      const container = document.getElementById('searchBoxContainer');
+      const input = document.getElementById('searchBox');
+      const icon = document.getElementById('searchIcon');
 
-      const excelData = guests.map((g, index) => {
-        const inviteLink = `${baseUrl}?to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
-        return {
-          "No": index + 1,
-          "Nama Penerima": g.nama,
-          "Jabatan / Utusan": g.jabatan || "-",
-          "No WhatsApp": g.wa || "-",
-          "Link Undangan Online": inviteLink,
-          "Status Kirim": g.terkirim ? "Sudah Terkirim" : "Belum Terkirim",
-          "Konfirmasi Kehadiran (RSVP)": g.rsvp
-        };
-      });
+      let isExpanded = container.classList.contains('expanded');
+      let shouldExpand = (typeof forceState === 'boolean') ? forceState : !isExpanded;
 
-      const worksheet = XLSX.utils.json_to_sheet(excelData);
-      worksheet['!cols'] = [{ wch: 5 }, { wch: 30 }, { wch: 25 }, { wch: 18 }, { wch: 65 }, { wch: 15 }, { wch: 20 }];
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Data Undangan");
-      XLSX.writeFile(workbook, "Laporan_Undangan_MultiAgenda.xlsx");
-
-      showPopNotification("Export Excel Berhasil! 📊", "Berkas Excel (.xlsx) berhasil diunduh.");
+      if (shouldExpand) {
+        container.classList.add('expanded');
+        icon.className = 'fa-solid fa-xmark text-danger';
+        setTimeout(() => input.focus(), 150);
+      } else {
+        container.classList.remove('expanded');
+        icon.className = 'fa-solid fa-magnifying-glass';
+        if (input.value) {
+          input.value = '';
+          filterGuests();
+        }
+      }
     }
 
-    function exportCSV() {
-      let csv = "Nama,Jabatan,No WA,Status Terkirim,RSVP\n";
-      guests.forEach(g => {
-        csv += `"${g.nama}","${g.jabatan}","${g.wa}","${g.terkirim ? 'Sudah' : 'Belum'}","${g.rsvp}"\n`;
-      });
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const link = document.createElement('a');
-      link.href = window.URL.createObjectURL(blob);
-      link.download = 'Laporan_Undangan_MultiAgenda.csv';
-      link.click();
+    function toggleSidebar(forceState) {
+      const sidebarEl = document.getElementById('leftSidebarNav');
+      const overlayEl = document.getElementById('sidebarOverlay');
+      const iconEl = document.getElementById('hamburgerIcon');
+
+      let shouldOpen = (typeof forceState === 'boolean') ? forceState : !sidebarEl.classList.contains('active');
+
+      if (shouldOpen) {
+        sidebarEl.classList.add('active');
+        overlayEl.classList.add('active');
+        if (iconEl) iconEl.className = 'fa-solid fa-xmark';
+      } else {
+        sidebarEl.classList.remove('active');
+        overlayEl.classList.remove('active');
+        if (iconEl) iconEl.className = 'fa-solid fa-bars';
+      }
+    }
+
+    function switchViewFromSidebar(targetView) {
+      const agenda = getCurrentAgenda();
+      if (!agenda) return;
+
+      if (targetView === 'admin') {
+        selectAgenda(agenda.id);
+      } else {
+        showGuestViewMode(agenda, "Nama Pratinjau", "Jabatan Pratinjau");
+      }
+      toggleSidebar(false);
+    }
+
+    function showPopNotification(title, message) {
+      document.getElementById('popTitle').innerText = title;
+      document.getElementById('popMessage').innerText = message;
+      showModalDirect('popNotificationModal');
     }
 
     function escapeHtml(text) {
       return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
     }
 
-    window.onload = initView;
+    window.onload = initApp;
   </script>
 </body>
 </html>

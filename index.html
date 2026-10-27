@@ -63,10 +63,19 @@
     }
 
     .agenda-card-header {
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       color: #fff;
       padding: 18px 20px;
       position: relative;
+    }
+
+    .agenda-logo-img {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      background: rgba(255,255,255,0.15);
+      border-radius: 10px;
+      padding: 4px;
+      backdrop-filter: blur(4px);
     }
 
     .agenda-badge-count {
@@ -298,6 +307,7 @@
       color: #fff;
       padding: 20px 0 20px 75px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: background 0.3s ease;
     }
 
     .stat-card {
@@ -343,6 +353,24 @@
       pointer-events: auto;
     }
 
+    /* BULK ACTION BAR STYLING */
+    .bulk-action-bar {
+      background: #fff8e7;
+      border: 1px solid var(--accent-color);
+      border-radius: 10px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* STANDALONE MODAL FALLBACK */
     .modal.custom-show {
       display: block !important;
@@ -363,7 +391,7 @@
   <div class="custom-sidebar" id="leftSidebarNav">
     <div class="sidebar-header d-flex align-items-center justify-content-between">
       <div class="d-flex align-items-center">
-        <img src="logo.png" alt="Logo Sako SIT" class="sidebar-logo" onerror="handleLogoError(this)">
+        <img src="logo.png" alt="Logo Sako SIT" id="sidebarLogoImg" class="sidebar-logo" onerror="handleLogoError(this)">
         <div>
           <h6 class="fw-bold mb-0 text-warning" id="sidebarAgendaTitle">Agenda Active</h6>
           <small class="text-white-50" style="font-size: 0.75rem;">Multi-Agenda Manager</small>
@@ -383,6 +411,15 @@
       <a class="sidebar-nav-item" id="menuItemGuest" onclick="switchViewFromSidebar('guest')">
         <i class="fa-solid fa-envelope"></i> Pratinjau Undangan
       </a>
+
+      <div class="sidebar-section-title">Tema Aplikasi Global</div>
+      <div class="px-3 py-2">
+        <label class="form-label text-white-50 small mb-1">Pilih Warna Utama Aplikasi:</label>
+        <div class="d-flex gap-2 align-items-center">
+          <input type="color" id="globalAppColorPicker" class="form-control form-control-color" value="#5c1813" title="Pilih warna aplikasi" onchange="changeGlobalAppTheme(this.value)">
+          <span class="small text-white-50" id="globalAppColorHex">#5c1813</span>
+        </div>
+      </div>
 
       <div class="sidebar-section-title">Filter RSVP Agenda Ini</div>
       <a class="sidebar-nav-item" onclick="applyRsvpFilterFromSidebar('all')">
@@ -425,13 +462,19 @@
   <div id="agendaSelectorView" class="container py-5">
     <div class="row justify-content-center mb-4 text-center">
       <div class="col-md-8">
-        <img src="logo.png" alt="Logo Sako SIT" style="height: 75px;" class="mb-3" onerror="handleLogoError(this)">
+        <img src="https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn" alt="Logo Sako SIT" style="height: 75px;" class="mb-3" onerror="handleLogoError(this)">
         <h2 class="fw-bold text-dark mb-2">Manajemen Undangan Multi-Agenda</h2>
         <p class="text-muted">Pilih salah satu agenda acara di bawah ini untuk mengelola data penerima undangan, membuat link WhatsApp kustom, dan melihat laporan RSVP secara spesifik.</p>
         
-        <button class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm mt-2 fw-bold" onclick="showModalDirect('createAgendaModal')">
-          <i class="fa-solid fa-plus-circle me-2"></i> Tambah Agenda Acara Baru
-        </button>
+        <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap">
+          <button class="btn btn-danger btn-lg rounded-pill px-4 shadow-sm fw-bold" onclick="showModalDirect('createAgendaModal')">
+            <i class="fa-solid fa-plus-circle me-2"></i> Tambah Agenda Acara Baru
+          </button>
+          <div class="d-flex align-items-center bg-white px-3 py-1 rounded-pill shadow-sm border">
+            <span class="small fw-bold text-secondary me-2"><i class="fa-solid fa-palette me-1"></i>Warna Aplikasi:</span>
+            <input type="color" class="form-control form-control-color border-0 p-0" style="width:28px; height:28px; cursor:pointer;" id="topThemeColorPicker" value="#5c1813" onchange="changeGlobalAppTheme(this.value)" title="Ubah warna tema utama">
+          </div>
+        </div>
       </div>
     </div>
 
@@ -452,19 +495,24 @@
       </div>
     </button>
 
-    <header class="admin-header mb-4">
+    <header class="admin-header mb-4" id="adminHeaderBar">
       <div class="container-fluid pe-3">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
           <div class="d-flex align-items-center">
             <button class="btn btn-outline-light btn-sm me-3 rounded-pill fw-bold" onclick="returnToAgendaList()">
               <i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Daftar Agenda
             </button>
+            <img src="https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn" id="adminAgendaHeaderLogo" class="me-2 rounded p-1 bg-white bg-opacity-25" style="height:40px; width:40px; object-fit:contain;" onerror="handleLogoError(this)">
             <div>
               <h4 class="fw-bold mb-0" id="currentAgendaDisplayTitle">Dashboard Agenda</h4>
               <p class="mb-0 text-white-50 small" id="currentAgendaDisplaySub">Sako Pramuka Sekolah Islam Terpadu (Sako SIT)</p>
             </div>
           </div>
-          <div class="d-flex gap-2 flex-wrap">
+          <div class="d-flex gap-2 flex-wrap align-items-center">
+            <div class="d-flex align-items-center bg-black bg-opacity-25 px-2 py-1 rounded-pill text-white small">
+              <i class="fa-solid fa-palette me-1 text-warning"></i> Warna Agenda:
+              <input type="color" id="agendaHeaderColorPicker" class="form-control form-control-color border-0 p-0 ms-1" style="width:24px; height:24px; cursor:pointer;" title="Ubah Warna Agenda Ini" onchange="updateAgendaColorDirect(this.value)">
+            </div>
             <button class="btn btn-outline-warning btn-sm text-warning fw-bold" onclick="openEditAgendaModal()"><i class="fa-solid fa-gear me-1"></i> Pengaturan Agenda</button>
             <button class="btn btn-light btn-sm" onclick="copyWALaporan()"><i class="fa-solid fa-copy me-1"></i> Salin Laporan WA</button>
             <button class="btn btn-info btn-sm text-dark fw-bold" onclick="triggerImportExcel()"><i class="fa-solid fa-file-import me-1"></i> Import Excel</button>
@@ -547,6 +595,25 @@
         </div>
       </div>
 
+      <!-- BULK ACTION BAR (BAR AKSI MASSAL TERPILIH) -->
+      <div id="bulkActionBar" class="bulk-action-bar d-none">
+        <div class="d-flex align-items-center">
+          <i class="fa-solid fa-check-double text-warning fs-5 me-2"></i>
+          <span class="fw-bold" id="selectedCountText">0 Data Terpilih</span>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <button class="btn btn-success btn-sm fw-bold shadow-sm" onclick="bulkSendWA()">
+            <i class="fa-brands fa-whatsapp me-1"></i> Sekali Kirim WA Terpilih
+          </button>
+          <button class="btn btn-outline-success btn-sm fw-bold" onclick="bulkMarkAsSent()">
+            <i class="fa-solid fa-check me-1"></i> Tandai Terkirim
+          </button>
+          <button class="btn btn-outline-danger btn-sm fw-bold" onclick="bulkDeleteGuests()">
+            <i class="fa-solid fa-trash me-1"></i> Hapus Terpilih
+          </button>
+        </div>
+      </div>
+
       <!-- TABEL DAFTAR UNDANGAN -->
       <div class="table-responsive">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -584,6 +651,9 @@
         <table class="table table-hover align-middle">
           <thead class="table-light">
             <tr>
+              <th style="width: 40px;" class="text-center">
+                <input type="checkbox" class="form-check-input" id="selectAllCheckbox" onchange="toggleSelectAllGuests(this.checked)" title="Pilih Semua Tamu di Halaman Ini">
+              </th>
               <th>No</th>
               <th>Nama & Jabatan</th>
               <th>No WhatsApp</th>
@@ -610,7 +680,7 @@
   <!-- ================================================================= -->
   <div id="coverView" class="d-none">
     <div class="cover-card">
-      <img src="logo.png" id="logoCover" alt="Logo Sako SIT" class="cover-logo" onerror="handleLogoError(this)">
+      <img src="https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn" id="logoCover" alt="Logo Sako SIT" class="cover-logo" onerror="handleLogoError(this)">
       <h6 class="text-uppercase tracking-wider text-warning mb-2" style="letter-spacing: 2px;">Undangan Resmi</h6>
       <h4 class="fw-bold mb-3" id="coverAgendaJudul">NAMA AGENDA</h4>
       <p class="text-white-50 mb-4" style="font-size: 0.9rem;" id="coverAgendaSub">Satuan Komunitas Pramuka Sekolah Islam Terpadu</p>
@@ -689,6 +759,16 @@
                 <input type="text" class="form-control" id="newAgendaLokasi" placeholder="Contoh: Buper Kwarda Lampung" required>
               </div>
             </div>
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label class="form-label fw-bold small text-secondary">URL / File Logo Agenda Acara</label>
+                <input type="text" class="form-control" id="newAgendaLogo" placeholder="Contoh: https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn">
+              </div>
+              <div class="col-4">
+                <label class="form-label fw-bold small text-secondary">Warna Agenda</label>
+                <input type="color" class="form-control form-control-color w-100" id="newAgendaColor" value="#5c1813" title="Pilih Warna Khas Agenda">
+              </div>
+            </div>
             <div class="mb-3">
               <label class="form-label fw-bold small text-secondary">Template Gambar Undangan (.png / .jpg)</label>
               <input type="text" class="form-control" id="newAgendaBg" placeholder="Contoh: Undangan.png (atau URL gambar)">
@@ -731,6 +811,16 @@
               <div class="col-6">
                 <label class="form-label fw-bold small text-secondary">Lokasi Acara</label>
                 <input type="text" class="form-control" id="editAgendaLokasi">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label class="form-label fw-bold small text-secondary">URL / File Logo Agenda Acara</label>
+                <input type="text" class="form-control" id="editAgendaLogo" placeholder="URL Logo (Opsional)">
+              </div>
+              <div class="col-4">
+                <label class="form-label fw-bold small text-secondary">Warna Agenda</label>
+                <input type="color" class="form-control form-control-color w-100" id="editAgendaColor" value="#5c1813" title="Pilih Warna Khas Agenda">
               </div>
             </div>
             <div class="mb-3">
@@ -823,7 +913,6 @@
   <!-- JAVASCRIPT LOGIC SYSTEM MULTI-AGENDA -->
   <!-- ================================================================= -->
   <script>
-    // URL Gambar Logo Google Drive Resmi
     const fallbackLogoUrl = 'https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn';
 
     function setupFavicon() {
@@ -846,6 +935,8 @@
         sub: "Satuan Komunitas Pramuka Sekolah Islam Terpadu",
         tanggal: "10 - 15 November 2026",
         lokasi: "Lapangan Upacara Kwarda Lampung",
+        logo: "https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn",
+        color: "#5c1813",
         bgImage: "Undangan.png",
         guests: [
           { id: 1, nama: "Kak Feri Susanto, S.Kom", jabatan: "Panitia Kembaranas III", wa: "6281234567890", terkirim: true, rsvp: "Hadir" },
@@ -858,6 +949,8 @@
         sub: "Rapat Kerja Daerah Sako Pramuka SIT Lampung",
         tanggal: "20 Desember 2026",
         lokasi: "Gedung Sako SIT Lampung",
+        logo: "https://lh3.googleusercontent.com/d/1tcGKStRpQVCexhLIF4koMJq2waDHoPnn",
+        color: "#1e4d2b",
         bgImage: "Undangan.png",
         guests: [
           { id: 101, nama: "Kakak Ketua Sako SIT Lampung", jabatan: "Pengurus Sako", wa: "6281234567000", terkirim: false, rsvp: "Belum Respon" }
@@ -867,14 +960,30 @@
 
     /* SYSTEM STATE */
     let agendasData = JSON.parse(localStorage.getItem("multi_agenda_app_data")) || defaultAgendasData;
+    let globalAppColor = localStorage.getItem("multi_agenda_app_theme") || "#5c1813";
     let activeAgendaId = null;
 
     let currentPage = 1;
     let rowsPerPage = 10;
     let currentRsvpFilter = 'all';
+    let selectedGuestIds = new Set();
 
     function saveAppData() {
       localStorage.setItem("multi_agenda_app_data", JSON.stringify(agendasData));
+    }
+
+    function changeGlobalAppTheme(colorHex) {
+      globalAppColor = colorHex;
+      localStorage.setItem("multi_agenda_app_theme", colorHex);
+      document.documentElement.style.setProperty('--primary-color', colorHex);
+      
+      const picker1 = document.getElementById('globalAppColorPicker');
+      const picker2 = document.getElementById('topThemeColorPicker');
+      const hexSpan = document.getElementById('globalAppColorHex');
+
+      if (picker1) picker1.value = colorHex;
+      if (picker2) picker2.value = colorHex;
+      if (hexSpan) hexSpan.innerText = colorHex;
     }
 
     /* STANDALONE MODAL CONTROLLER */
@@ -917,6 +1026,7 @@
     /* INITIALIZATION & ROUTING */
     function initApp() {
       setupFavicon();
+      changeGlobalAppTheme(globalAppColor);
 
       const urlParams = new URLSearchParams(window.location.search);
       const guestName = urlParams.get('to');
@@ -932,7 +1042,7 @@
       }
     }
 
-    /* 1. SELEKTOR AGENDA (HALAMAN UTAMA/DOKS DAFTAR AGENDA) */
+    /* 1. SELEKTOR AGENDA (HALAMAN UTAMA DAFTAR AGENDA) */
     function renderAgendaSelector() {
       document.getElementById('agendaSelectorView').classList.remove('d-none');
       document.getElementById('adminView').classList.add('d-none');
@@ -955,15 +1065,20 @@
       agendasData.forEach(agenda => {
         const guestCount = agenda.guests ? agenda.guests.length : 0;
         const terkirimCount = agenda.guests ? agenda.guests.filter(g => g.terkirim).length : 0;
+        const cardColor = agenda.color || globalAppColor;
+        const logoUrl = agenda.logo || fallbackLogoUrl;
 
         const col = document.createElement('div');
         col.className = 'col-md-6 col-lg-4';
         col.innerHTML = `
           <div class="agenda-card h-100" onclick="selectAgenda('${agenda.id}')">
-            <div class="agenda-card-header">
-              <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="agenda-badge-count"><i class="fa-solid fa-users me-1"></i>${guestCount} Tamu</span>
-                <span class="badge bg-warning text-dark">${terkirimCount} Terkirim</span>
+            <div class="agenda-card-header" style="background: linear-gradient(135deg, ${cardColor}, #1f1f1f);">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <img src="${logoUrl}" class="agenda-logo-img" onerror="handleLogoError(this)">
+                <div class="text-end">
+                  <span class="agenda-badge-count me-1"><i class="fa-solid fa-users me-1"></i>${guestCount} Tamu</span>
+                  <span class="badge bg-warning text-dark">${terkirimCount} Terkirim</span>
+                </div>
               </div>
               <h5 class="fw-bold mb-0 text-truncate">${escapeHtml(agenda.judul)}</h5>
             </div>
@@ -972,7 +1087,7 @@
               <div class="small text-secondary mb-1"><i class="fa-solid fa-calendar me-2 text-warning"></i>${escapeHtml(agenda.tanggal || '-')}</div>
               <div class="small text-secondary"><i class="fa-solid fa-location-dot me-2 text-danger"></i>${escapeHtml(agenda.lokasi || '-')}</div>
               <div class="mt-3 pt-2 border-top d-flex justify-content-between align-items-center">
-                <span class="btn btn-sm btn-outline-danger rounded-pill fw-bold">Kelola Agenda &rarr;</span>
+                <span class="btn btn-sm btn-outline-dark rounded-pill fw-bold" style="border-color:${cardColor}; color:${cardColor};">Kelola Agenda &rarr;</span>
                 <small class="text-muted">ID: ${agenda.id}</small>
               </div>
             </div>
@@ -988,6 +1103,8 @@
       const sub = document.getElementById('newAgendaSub').value.trim();
       const tanggal = document.getElementById('newAgendaTanggal').value.trim();
       const lokasi = document.getElementById('newAgendaLokasi').value.trim();
+      const logo = document.getElementById('newAgendaLogo').value.trim();
+      const color = document.getElementById('newAgendaColor').value;
       let bg = document.getElementById('newAgendaBg').value.trim();
       if (!bg) bg = 'Undangan.png';
 
@@ -995,7 +1112,10 @@
 
       const newAgendaObj = {
         id: newId,
-        judul, sub, tanggal, lokasi, bgImage: bg,
+        judul, sub, tanggal, lokasi, 
+        logo: logo || fallbackLogoUrl,
+        color: color || globalAppColor,
+        bgImage: bg,
         guests: []
       };
 
@@ -1012,6 +1132,8 @@
     /* 2. DASHBOARD AGENDA TERPILIH */
     function selectAgenda(id) {
       activeAgendaId = id;
+      selectedGuestIds.clear();
+
       const agenda = getCurrentAgenda();
       if (!agenda) return;
 
@@ -1023,17 +1145,42 @@
       document.getElementById('currentAgendaDisplayTitle').innerText = agenda.judul;
       document.getElementById('currentAgendaDisplaySub').innerText = agenda.sub || agenda.lokasi;
       document.getElementById('sidebarAgendaTitle').innerText = agenda.judul;
+      
+      const logoImg = document.getElementById('adminAgendaHeaderLogo');
+      if (logoImg) logoImg.src = agenda.logo || fallbackLogoUrl;
+
+      const headerBar = document.getElementById('adminHeaderBar');
+      const agendaColor = agenda.color || globalAppColor;
+      if (headerBar) {
+        headerBar.style.background = `linear-gradient(135deg, ${agendaColor}, #1f1f1f)`;
+      }
+
+      const picker = document.getElementById('agendaHeaderColorPicker');
+      if (picker) picker.value = agendaColor;
 
       renderDashboard();
     }
 
     function returnToAgendaList() {
       activeAgendaId = null;
+      selectedGuestIds.clear();
       renderAgendaSelector();
     }
 
     function getCurrentAgenda() {
       return agendasData.find(a => a.id === activeAgendaId);
+    }
+
+    function updateAgendaColorDirect(colorHex) {
+      const agenda = getCurrentAgenda();
+      if (agenda) {
+        agenda.color = colorHex;
+        saveAppData();
+        const headerBar = document.getElementById('adminHeaderBar');
+        if (headerBar) {
+          headerBar.style.background = `linear-gradient(135deg, ${colorHex}, #1f1f1f)`;
+        }
+      }
     }
 
     function openEditAgendaModal() {
@@ -1045,6 +1192,8 @@
       document.getElementById('editAgendaSub').value = agenda.sub || '';
       document.getElementById('editAgendaTanggal').value = agenda.tanggal || '';
       document.getElementById('editAgendaLokasi').value = agenda.lokasi || '';
+      document.getElementById('editAgendaLogo').value = agenda.logo || '';
+      document.getElementById('editAgendaColor').value = agenda.color || globalAppColor;
       document.getElementById('editAgendaBg').value = agenda.bgImage || 'Undangan.png';
 
       showModalDirect('editAgendaModal');
@@ -1058,6 +1207,8 @@
         agenda.sub = document.getElementById('editAgendaSub').value.trim();
         agenda.tanggal = document.getElementById('editAgendaTanggal').value.trim();
         agenda.lokasi = document.getElementById('editAgendaLokasi').value.trim();
+        agenda.logo = document.getElementById('editAgendaLogo').value.trim() || fallbackLogoUrl;
+        agenda.color = document.getElementById('editAgendaColor').value || globalAppColor;
         agenda.bgImage = document.getElementById('editAgendaBg').value.trim() || 'Undangan.png';
 
         saveAppData();
@@ -1080,7 +1231,7 @@
       }
     }
 
-    /* KONTROL TAMU UNTUK AGENDA TERPILIH */
+    /* KONTROL TAMU & CHECKBOX TERPILIH */
     function renderDashboard() {
       const agenda = getCurrentAgenda();
       if (!agenda) return;
@@ -1136,7 +1287,7 @@
       tbody.innerHTML = '';
 
       if (pageGuests.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fa-solid fa-inbox display-6 d-block mb-2"></i>Tidak ada data tamu di agenda ini.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fa-solid fa-inbox display-6 d-block mb-2"></i>Tidak ada data tamu di agenda ini.</td></tr>`;
       } else {
         const baseUrl = window.location.origin + window.location.pathname;
 
@@ -1146,9 +1297,13 @@
           
           const waText = `Assalamu'alaikum Wr. Wb. Kak/Bpk/Ibu *${g.nama}*,\n\nKami mengundang Anda untuk hadir pada acara *${agenda.judul}* (${agenda.tanggal || ''}).\n\nDetail Undangan Digital Anda dapat diakses melalui tautan berikut:\n${inviteLink}\n\nTerima kasih.`;
           const waLink = `https://api.whatsapp.com/send?phone=${g.wa}&text=${encodeURIComponent(waText)}`;
+          const isChecked = selectedGuestIds.has(String(g.id));
 
           const tr = document.createElement('tr');
           tr.innerHTML = `
+            <td class="text-center">
+              <input type="checkbox" class="form-check-input guest-checkbox" value="${g.id}" ${isChecked ? 'checked' : ''} onchange="toggleGuestSelect('${g.id}', this.checked)">
+            </td>
             <td>${actualIndex}</td>
             <td>
               <strong>${escapeHtml(g.nama)}</strong>
@@ -1187,7 +1342,106 @@
         });
       }
 
+      updateBulkActionBar();
       renderPaginationControls(totalFiltered, totalPages, startIndex, endIndex);
+    }
+
+    function toggleGuestSelect(id, checked) {
+      if (checked) {
+        selectedGuestIds.add(String(id));
+      } else {
+        selectedGuestIds.delete(String(id));
+      }
+      updateBulkActionBar();
+    }
+
+    function toggleSelectAllGuests(checked) {
+      const checkboxes = document.querySelectorAll('.guest-checkbox');
+      checkboxes.forEach(cb => {
+        cb.checked = checked;
+        if (checked) {
+          selectedGuestIds.add(String(cb.value));
+        } else {
+          selectedGuestIds.delete(String(cb.value));
+        }
+      });
+      updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+      const bar = document.getElementById('bulkActionBar');
+      const text = document.getElementById('selectedCountText');
+      const count = selectedGuestIds.size;
+
+      if (count > 0) {
+        bar.classList.remove('d-none');
+        text.innerText = `${count} Data Tamu Terpilih`;
+      } else {
+        bar.classList.add('d-none');
+        const selectAllCb = document.getElementById('selectAllCheckbox');
+        if (selectAllCb) selectAllCb.checked = false;
+      }
+    }
+
+    /* FITUR SEKALI KIRIM WA & BULK ACTIONS */
+    function bulkSendWA() {
+      const agenda = getCurrentAgenda();
+      if (!agenda || selectedGuestIds.size === 0) return;
+
+      const selectedGuests = agenda.guests.filter(g => selectedGuestIds.has(String(g.id)));
+      if (selectedGuests.length === 0) return;
+
+      const baseUrl = window.location.origin + window.location.pathname;
+
+      let openedCount = 0;
+      selectedGuests.forEach((g, i) => {
+        if (!g.wa) return;
+        
+        const inviteLink = `${baseUrl}?agenda=${encodeURIComponent(agenda.id)}&to=${encodeURIComponent(g.nama)}${g.jabatan ? '&j=' + encodeURIComponent(g.jabatan) : ''}`;
+        const waText = `Assalamu'alaikum Wr. Wb. Kak/Bpk/Ibu *${g.nama}*,\n\nKami mengundang Anda untuk hadir pada acara *${agenda.judul}* (${agenda.tanggal || ''}).\n\nDetail Undangan Digital Anda dapat diakses melalui tautan berikut:\n${inviteLink}\n\nTerima kasih.`;
+        const waLink = `https://api.whatsapp.com/send?phone=${g.wa}&text=${encodeURIComponent(waText)}`;
+
+        setTimeout(() => {
+          window.open(waLink, '_blank');
+        }, i * 600);
+
+        g.terkirim = true;
+        openedCount++;
+      });
+
+      saveAppData();
+      renderDashboard();
+      showPopNotification("Kirim WA Massal! 📲", `Membuka WhatsApp untuk ${openedCount} tamu terpilih dan menandai status terkirim.`);
+    }
+
+    function bulkMarkAsSent() {
+      const agenda = getCurrentAgenda();
+      if (!agenda || selectedGuestIds.size === 0) return;
+
+      let count = 0;
+      agenda.guests.forEach(g => {
+        if (selectedGuestIds.has(String(g.id))) {
+          g.terkirim = true;
+          count++;
+        }
+      });
+
+      saveAppData();
+      renderDashboard();
+      showPopNotification("Berhasil! ✅", `${count} tamu terpilih telah ditandai sebagai 'Sudah Terkirim'.`);
+    }
+
+    function bulkDeleteGuests() {
+      const agenda = getCurrentAgenda();
+      if (!agenda || selectedGuestIds.size === 0) return;
+
+      if (confirm(`Apakah Anda yakin ingin menghapus ${selectedGuestIds.size} tamu yang dipilih?`)) {
+        agenda.guests = agenda.guests.filter(g => !selectedGuestIds.has(String(g.id)));
+        selectedGuestIds.clear();
+        saveAppData();
+        renderDashboard();
+        showPopNotification("Berhasil Dihapus! 🗑️", "Data tamu terpilih berhasil dihapus.");
+      }
     }
 
     function renderPaginationControls(totalFiltered, totalPages, startIndex, endIndex) {
@@ -1358,6 +1612,10 @@
 
       document.getElementById('displayNamaTamu').innerText = guestName;
       document.getElementById('displayJabatanTamu').innerText = guestJabatan;
+
+      if (agenda.logo) {
+        document.getElementById('logoCover').src = agenda.logo;
+      }
 
       if (agenda.bgImage) {
         document.getElementById('undanganMainImg').src = agenda.bgImage;
